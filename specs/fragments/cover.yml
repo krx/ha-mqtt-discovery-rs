@@ -1,0 +1,577 @@
+# Auto-generated Openapi model from the following content:
+# 
+# availability:
+#   description: "A list of MQTT topics subscribed to receive availability (online/offline) updates. Must not be used together with `availability_topic`."
+#   required: false
+#   type: list
+#   keys:
+#     payload_available:
+#       description: The payload that represents the available state.
+#       required: false
+#       type: string
+#       default: online
+#     payload_not_available:
+#       description: The payload that represents the unavailable state.
+#       required: false
+#       type: string
+#       default: offline
+#     topic:
+#       description: An MQTT topic subscribed to receive availability (online/offline) updates.
+#       required: true
+#       type: string
+#     value_template:
+#       description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract device's availability from the `topic`. To determine the devices's availability result of this template will be compared to `payload_available` and `payload_not_available`."
+#       required: false
+#       type: template
+# availability_mode:
+#   description: When `availability` is configured, this controls the conditions needed to set the entity to `available`. Valid entries are `all`, `any`, and `latest`. If set to `all`, `payload_available` must be received on all configured availability topics before the entity is marked as online. If set to `any`, `payload_available` must be received on at least one configured availability topic before the entity is marked as online. If set to `latest`, the last `payload_available` or `payload_not_available` received on any configured availability topic controls the availability.
+#   required: false
+#   type: string
+#   default: latest
+# availability_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract device's availability from the `availability_topic`. To determine the devices's availability result of this template will be compared to `payload_available` and `payload_not_available`."
+#   required: false
+#   type: template
+# availability_topic:
+#   description: "The MQTT topic subscribed to to receive birth and LWT messages from the MQTT cover device. If an `availability` topic is not defined, the cover availability state will always be `available`. If an `availability` topic is defined, the cover availability state will be `unavailable` by default. Must not be used together with `availability`."
+#   required: false
+#   type: string
+# command_topic:
+#   description: The MQTT topic to publish commands to control the cover.
+#   required: false
+#   type: string
+# device:
+#   description: "Information about the device this cover is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/en/device_registry_index.html). Only works when [`unique_id`](#unique_id) is set. At least one of identifiers or connections must be present to identify the device."
+#   required: false
+#   type: map
+#   keys:
+#     configuration_url:
+#       description: 'A link to the webpage that can manage the configuration of this device. Can be either an `http://`, `https://` or an internal `homeassistant://` URL.'
+#       required: false
+#       type: string
+#     connections:
+#       description: 'A list of connections of the device to the outside world as a list of tuples `[connection_type, connection_identifier]`. For example the MAC address of a network interface: `"connections": ["mac", "02:5b:26:a8:dc:12"]`.'
+#       required: false
+#       type: list
+#     hw_version:
+#       description: "The hardware version of the device."
+#       required: false
+#       type: string
+#     identifiers:
+#       description: 'A list of IDs that uniquely identify the device. For example a serial number.'
+#       required: false
+#       type: [list, string]
+#     manufacturer:
+#       description: The manufacturer of the device.
+#       required: false
+#       type: string
+#     model:
+#       description: The model of the device.
+#       required: false
+#       type: string
+#     name:
+#       description: The name of the device.
+#       required: false
+#       type: string
+#     suggested_area:
+#       description: 'Suggest an area if the device isn’t in one yet.'
+#       required: false
+#       type: string
+#     sw_version:
+#       description: The firmware version of the device.
+#       required: false
+#       type: string
+#     via_device:
+#       description: 'Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device. This is used to show device topology in Home Assistant.'
+#       required: false
+#       type: string
+# device_class:
+#   description: Sets the [class of the device](/integrations/cover/), changing the device state and icon that is displayed on the frontend. The `device_class` can be `null`.
+#   default: None
+#   required: false
+#   type: string
+# enabled_by_default:
+#   description: Flag which defines if the entity should be enabled when first added.
+#   required: false
+#   type: boolean
+#   default: true
+# encoding:
+#   description: The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
+#   required: false
+#   type: string
+#   default: "utf-8"
+# entity_category:
+#   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
+#   required: false
+#   type: string
+#   default: None
+# icon:
+#   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
+#   required: false
+#   type: icon
+# json_attributes_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the JSON dictionary from messages received on the `json_attributes_topic`. Usage example can be found in [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-template-configuration) documentation."
+#   required: false
+#   type: template
+# json_attributes_topic:
+#   description: The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Usage example can be found in [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration) documentation.
+#   required: false
+#   type: string
+# name:
+#   description: The name of the cover. Can be set to `null` if only the device name is relevant.
+#   required: false
+#   type: string
+#   default: MQTT Cover
+# object_id:
+#   description: Used instead of `name` for automatic generation of `entity_id`
+#   required: false
+#   type: string
+# optimistic:
+#   description: Flag that defines if switch works in optimistic mode.
+#   required: false
+#   type: boolean
+#   default: "`false` if state or position topic defined, else `true`."
+# payload_available:
+#   description: The payload that represents the online state.
+#   required: false
+#   type: string
+#   default: online
+# payload_close:
+#   description: The command payload that closes the cover.
+#   required: false
+#   type: string
+#   default: CLOSE
+# payload_not_available:
+#   description: The payload that represents the offline state.
+#   required: false
+#   type: string
+#   default: offline
+# payload_open:
+#   description: The command payload that opens the cover.
+#   required: false
+#   type: string
+#   default: OPEN
+# payload_stop:
+#   description: The command payload that stops the cover.
+#   required: false
+#   type: string
+#   default: STOP
+# position_closed:
+#   description: Number which represents closed position.
+#   required: false
+#   type: integer
+#   default: 0
+# position_open:
+#   description: Number which represents open position.
+#   required: false
+#   type: integer
+#   default: 100
+# position_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) that can be used to extract the payload for the `position_topic` topic. Within the template the following variables are available: `entity_id`, `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The `entity_id` can be used to reference the entity's attributes with help of the [states](/docs/configuration/templating/#states) template function;"
+#   required: false
+#   type: template
+# position_topic:
+#   description: The MQTT topic subscribed to receive cover position messages.
+#   required: false
+#   type: string
+# qos:
+#   description: The maximum QoS level to be used when receiving and publishing messages.
+#   required: false
+#   type: integer
+#   default: 0
+# retain:
+#   description: Defines if published messages should have the retain flag set.
+#   required: false
+#   type: boolean
+#   default: false
+# set_position_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to define the position to be sent to the `set_position_topic` topic. Incoming position value is available for use in the template `{% raw %}{{ position }}{% endraw %}`. Within the template the following variables are available: `entity_id`, `position`, the target position in percent; `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The `entity_id` can be used to reference the entity's attributes with help of the [states](/docs/configuration/templating/#states) template function;"
+#   required: false
+#   type: template
+# set_position_topic:
+#   description: "The MQTT topic to publish position commands to. You need to set position_topic as well if you want to use position topic. Use template if position topic wants different values than within range `position_closed` - `position_open`. If template is not defined and `position_closed != 100` and `position_open != 0` then proper position value is calculated from percentage position."
+#   required: false
+#   type: string
+# state_closed:
+#   description: The payload that represents the closed state.
+#   required: false
+#   type: string
+#   default: closed
+# state_closing:
+#   description: The payload that represents the closing state.
+#   required: false
+#   type: string
+#   default: closing
+# state_open:
+#   description: The payload that represents the open state.
+#   required: false
+#   type: string
+#   default: open
+# state_opening:
+#   description: The payload that represents the opening state.
+#   required: false
+#   type: string
+#   default: opening
+# state_stopped:
+#   description: The payload that represents the stopped state (for covers that do not report `open`/`closed` state).
+#   required: false
+#   type: string
+#   default: stopped
+# state_topic:
+#   description: The MQTT topic subscribed to receive cover state messages. State topic can only read (`open`, `opening`, `closed`, `closing` or `stopped`) state.
+#   required: false
+#   type: string
+# tilt_closed_value:
+#   description: The value that will be sent on a `close_cover_tilt` command.
+#   required: false
+#   type: integer
+#   default: 0
+# tilt_command_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) that can be used to extract the payload for the `tilt_command_topic` topic. Within the template the following variables are available: `entity_id`, `tilt_position`, the target tilt position in percent; `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The `entity_id` can be used to reference the entity's attributes with help of the [states](/docs/configuration/templating/#states) template function;"
+#   required: false
+#   type: template
+# tilt_command_topic:
+#   description: The MQTT topic to publish commands to control the cover tilt.
+#   required: false
+#   type: string
+# tilt_max:
+#   description: The maximum tilt value.
+#   required: false
+#   type: integer
+#   default: 100
+# tilt_min:
+#   description: The minimum tilt value.
+#   required: false
+#   type: integer
+#   default: 0
+# tilt_opened_value:
+#   description: The value that will be sent on an `open_cover_tilt` command.
+#   required: false
+#   type: integer
+#   default: 100
+# tilt_optimistic:
+#   description: Flag that determines if tilt works in optimistic mode.
+#   required: false
+#   type: boolean
+#   default: "`true` if `tilt_status_topic` is not defined, else `false`"
+# tilt_status_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) that can be used to extract the payload for the `tilt_status_topic` topic. Within the template the following variables are available: `entity_id`, `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The `entity_id` can be used to reference the entity's attributes with help of the [states](/docs/configuration/templating/#states) template function;"
+#   required: false
+#   type: template
+# tilt_status_topic:
+#   description: The MQTT topic subscribed to receive tilt status update values.
+#   required: false
+#   type: string
+# unique_id:
+#   description: An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception.
+#   required: false
+#   type: string
+# value_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) that can be used to extract the payload for the `state_topic` topic."
+#   required: false
+#   type: template
+# 
+
+type: object
+description: >-
+  Home Assistant can give you an interface to control covers such as
+  rollershutters, blinds, and garage doors.
+required: []
+properties:
+  availability:
+    description: >-
+      A list of MQTT topics subscribed to receive availability (online/offline)
+      updates. Must not be used together with `availability_topic`.
+    type: array
+    items:
+      payload_available:
+        description: 'The payload that represents the available state. (Default: online)'
+        type: string
+      payload_not_available:
+        description: 'The payload that represents the unavailable state. (Default: offline)'
+        type: string
+      topic:
+        description: >-
+          An MQTT topic subscribed to receive availability (online/offline)
+          updates.
+        type: string
+      value_template:
+        description: >-
+          Defines a
+          [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+          to extract device's availability from the `topic`. To determine the
+          devices's availability result of this template will be compared to
+          `payload_available` and `payload_not_available`.
+        type: string
+  availability_mode:
+    description: >-
+      When `availability` is configured, this controls the conditions needed to
+      set the entity to `available`. Valid entries are `all`, `any`, and
+      `latest`. If set to `all`, `payload_available` must be received on all
+      configured availability topics before the entity is marked as online. If
+      set to `any`, `payload_available` must be received on at least one
+      configured availability topic before the entity is marked as online. If
+      set to `latest`, the last `payload_available` or `payload_not_available`
+      received on any configured availability topic controls the availability.
+      (Default: latest)
+    type: string
+  availability_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract device's availability from the `availability_topic`. To
+      determine the devices's availability result of this template will be
+      compared to `payload_available` and `payload_not_available`.
+    type: string
+  availability_topic:
+    description: >-
+      The MQTT topic subscribed to to receive birth and LWT messages from the
+      MQTT cover device. If an `availability` topic is not defined, the cover
+      availability state will always be `available`. If an `availability` topic
+      is defined, the cover availability state will be `unavailable` by default.
+      Must not be used together with `availability`.
+    type: string
+  command_topic:
+    description: The MQTT topic to publish commands to control the cover.
+    type: string
+  device:
+    type: object
+    description: >-
+      Information about the device this cover is a part of to tie it into the
+      [device
+      registry](https://developers.home-assistant.io/docs/en/device_registry_index.html).
+      Only works when [`unique_id`](#unique_id) is set. At least one of
+      identifiers or connections must be present to identify the device.
+    required: []
+    properties:
+      configuration_url:
+        description: >-
+          A link to the webpage that can manage the configuration of this
+          device. Can be either an `http://`, `https://` or an internal
+          `homeassistant://` URL.
+        type: string
+      connections:
+        description: >-
+          A list of connections of the device to the outside world as a list of
+          tuples `[connection_type, connection_identifier]`. For example the MAC
+          address of a network interface: `"connections": ["mac",
+          "02:5b:26:a8:dc:12"]`.
+        type: array
+        items:
+          type: string
+      hw_version:
+        description: The hardware version of the device.
+        type: string
+      manufacturer:
+        description: The manufacturer of the device.
+        type: string
+      model:
+        description: The model of the device.
+        type: string
+      name:
+        description: The name of the device.
+        type: string
+      suggested_area:
+        description: Suggest an area if the device isn’t in one yet.
+        type: string
+      sw_version:
+        description: The firmware version of the device.
+        type: string
+      via_device:
+        description: >-
+          Identifier of a device that routes messages between this device and
+          Home Assistant. Examples of such devices are hubs, or parent devices
+          of a sub-device. This is used to show device topology in Home
+          Assistant.
+        type: string
+  device_class:
+    description: >-
+      Sets the [class of the device](/integrations/cover/), changing the device
+      state and icon that is displayed on the frontend. The `device_class` can
+      be `null`. (Default: None)
+    type: string
+  enabled_by_default:
+    description: >-
+      Flag which defines if the entity should be enabled when first added.
+      (Default: true)
+    type: string
+  encoding:
+    description: >-
+      The encoding of the payloads received and published messages. Set to `""`
+      to disable decoding of incoming payload. (Default: utf-8)
+    type: string
+  entity_category:
+    description: >-
+      The
+      [category](https://developers.home-assistant.io/docs/core/entity#generic-properties)
+      of the entity. (Default: None)
+    type: string
+  json_attributes_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract the JSON dictionary from messages received on the
+      `json_attributes_topic`. Usage example can be found in [MQTT
+      sensor](/integrations/sensor.mqtt/#json-attributes-template-configuration)
+      documentation.
+    type: string
+  json_attributes_topic:
+    description: >-
+      The MQTT topic subscribed to receive a JSON dictionary payload and then
+      set as sensor attributes. Usage example can be found in [MQTT
+      sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration)
+      documentation.
+    type: string
+  name:
+    description: >-
+      The name of the cover. Can be set to `null` if only the device name is
+      relevant. (Default: MQTT Cover)
+    type: string
+  object_id:
+    description: Used instead of `name` for automatic generation of `entity_id`
+    type: string
+  optimistic:
+    description: >-
+      Flag that defines if switch works in optimistic mode. (Default: `false` if
+      state or position topic defined, else `true`.)
+    type: string
+  payload_available:
+    description: 'The payload that represents the online state. (Default: online)'
+    type: string
+  payload_close:
+    description: 'The command payload that closes the cover. (Default: CLOSE)'
+    type: string
+  payload_not_available:
+    description: 'The payload that represents the offline state. (Default: offline)'
+    type: string
+  payload_open:
+    description: 'The command payload that opens the cover. (Default: OPEN)'
+    type: string
+  payload_stop:
+    description: 'The command payload that stops the cover. (Default: STOP)'
+    type: string
+  position_closed:
+    description: Number which represents closed position.
+    type: string
+  position_open:
+    description: 'Number which represents open position. (Default: 100)'
+    type: string
+  position_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      that can be used to extract the payload for the `position_topic` topic.
+      Within the template the following variables are available: `entity_id`,
+      `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The
+      `entity_id` can be used to reference the entity's attributes with help of
+      the [states](/docs/configuration/templating/#states) template function;
+    type: string
+  position_topic:
+    description: The MQTT topic subscribed to receive cover position messages.
+    type: string
+  qos:
+    description: The maximum QoS level to be used when receiving and publishing messages.
+    type: string
+  retain:
+    description: Defines if published messages should have the retain flag set.
+    type: string
+  set_position_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to define the position to be sent to the `set_position_topic` topic.
+      Incoming position value is available for use in the template `{% raw %}{{
+      position }}{% endraw %}`. Within the template the following variables are
+      available: `entity_id`, `position`, the target position in percent;
+      `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The
+      `entity_id` can be used to reference the entity's attributes with help of
+      the [states](/docs/configuration/templating/#states) template function;
+    type: string
+  set_position_topic:
+    description: >-
+      The MQTT topic to publish position commands to. You need to set
+      position_topic as well if you want to use position topic. Use template if
+      position topic wants different values than within range `position_closed`
+      - `position_open`. If template is not defined and `position_closed != 100`
+      and `position_open != 0` then proper position value is calculated from
+      percentage position.
+    type: string
+  state_closed:
+    description: 'The payload that represents the closed state. (Default: closed)'
+    type: string
+  state_closing:
+    description: 'The payload that represents the closing state. (Default: closing)'
+    type: string
+  state_open:
+    description: 'The payload that represents the open state. (Default: open)'
+    type: string
+  state_opening:
+    description: 'The payload that represents the opening state. (Default: opening)'
+    type: string
+  state_stopped:
+    description: >-
+      The payload that represents the stopped state (for covers that do not
+      report `open`/`closed` state). (Default: stopped)
+    type: string
+  state_topic:
+    description: >-
+      The MQTT topic subscribed to receive cover state messages. State topic can
+      only read (`open`, `opening`, `closed`, `closing` or `stopped`) state.
+    type: string
+  tilt_closed_value:
+    description: The value that will be sent on a `close_cover_tilt` command.
+    type: string
+  tilt_command_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      that can be used to extract the payload for the `tilt_command_topic`
+      topic. Within the template the following variables are available:
+      `entity_id`, `tilt_position`, the target tilt position in percent;
+      `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The
+      `entity_id` can be used to reference the entity's attributes with help of
+      the [states](/docs/configuration/templating/#states) template function;
+    type: string
+  tilt_command_topic:
+    description: The MQTT topic to publish commands to control the cover tilt.
+    type: string
+  tilt_max:
+    description: 'The maximum tilt value. (Default: 100)'
+    type: string
+  tilt_min:
+    description: The minimum tilt value.
+    type: string
+  tilt_opened_value:
+    description: >-
+      The value that will be sent on an `open_cover_tilt` command. (Default:
+      100)
+    type: string
+  tilt_optimistic:
+    description: >-
+      Flag that determines if tilt works in optimistic mode. (Default: `true` if
+      `tilt_status_topic` is not defined, else `false`)
+    type: string
+  tilt_status_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      that can be used to extract the payload for the `tilt_status_topic` topic.
+      Within the template the following variables are available: `entity_id`,
+      `position_open`; `position_closed`; `tilt_min`; `tilt_max`. The
+      `entity_id` can be used to reference the entity's attributes with help of
+      the [states](/docs/configuration/templating/#states) template function;
+    type: string
+  tilt_status_topic:
+    description: The MQTT topic subscribed to receive tilt status update values.
+    type: string
+  unique_id:
+    description: >-
+      An ID that uniquely identifies this cover. If two covers have the same
+      unique ID, Home Assistant will raise an exception.
+    type: string
+  value_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      that can be used to extract the payload for the `state_topic` topic.
+    type: string

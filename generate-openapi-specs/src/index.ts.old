@@ -1,0 +1,165 @@
+import { readdirSync, readFileSync, writeFileSync } from "fs";
+import yaml from "js-yaml";
+import {
+  ABBREVIATIONS,
+  DEVICE_ABBREVIATIONS,
+  ORIGIN_ABBREVIATIONS,
+} from "./abbreviations";
+
+const INTEGRATIONS_DOCS = `${process.env.HOME_ASSISTANT_DOCS}/source/_integrations`;
+const MQTT_INTEGRATIONS_DOCS = readdirSync(INTEGRATIONS_DOCS)
+  .filter((name) => name.endsWith(".mqtt.markdown"))
+  .filter(
+    (name) =>
+      ![
+        "climate.mqtt.markdown",
+        "number.mqtt.markdown",
+        "water_heater.mqtt.markdown",
+      ].includes(name)
+  )
+  .sort();
+
+const ALL_ABBREVIATIONS = Object.fromEntries(
+  [
+    Object.entries(ABBREVIATIONS),
+    Object.entries(DEVICE_ABBREVIATIONS),
+    Object.entries(ORIGIN_ABBREVIATIONS),
+  ]
+    .flat()
+    .map(([short, full]) => [full, short])
+);
+
+const modelRegistry = new Map<string, any>();
+
+
+
+MQTT_INTEGRATIONS_DOCS.forEach((file) => {
+  const filePath = `${process.env.HOME_ASSISTANT_DOCS}/source/_integrations/${file}`;
+  console.log(`converting ${filePath}`);
+  const outFilename = file.replace(".mqtt.markdown", ".yml");
+  const source = readFileSync(filePath, "utf-8");
+  const configurationString = source
+    .replace(/.*{% configuration %}/s, "")
+    .replace(/{% endconfiguration %}.*/s, "");
+
+  const config = yaml.load(configurationString, {
+    json: true,
+  });
+  const openapiModel = toOpenapi(config);
+
+  writeFileSync(
+    `${process.env.DEVENV_ROOT}/specs/fragments/${outFilename}`,
+    "# Auto-generated Openapi model from the following content" +
+      configurationString.replace(/^/gm, "# ") +
+      "\n" +
+      yaml.dump(openapiModel)
+  );
+});
+
+const rootSpecFile = `${process.env.DEVENV_ROOT}/specs/openapi.yml`;
+const specOriginalContent = readFileSync(rootSpecFile, "utf-8");
+const rootSpec: any = yaml.load(specOriginalContent);
+rootSpec.components.schemas = Object.fromEntries(
+  MQTT_INTEGRATIONS_DOCS.map((file) => {
+    const modelName = file
+      .replace(".mqtt.markdown", "")
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join("");
+    const fragmentName = file.replace(".mqtt.markdown", ".yml");
+    return [modelName, { $ref: `fragments/${fragmentName}` }];
+  })
+);
+writeFileSync(rootSpecFile, yaml.dump(rootSpec));
+
+function toOpenapi(schema: any, propName?: string): any {
+  const defaultValue = schema.default
+    ? `(Default: \`${schema.default})\``
+    : undefined;
+  const description = [schema.description, defaultValue]
+    .filter((s) => !!s)
+    .join(" ");
+
+  if (!schema.type || !!schema.type.type) {
+    return toOpenapiObject(schema, propName);
+  }
+  if (schema.type instanceof Array) {
+    return {
+      oneOf: schema.type.map((type: any) => toOpenapi({ type })),
+    };
+  }
+  switch (schema.type) {
+    case "list":
+      if (schema.keys) {
+        return {
+          type: "array",
+          description,
+          items: toOpenapiObject(schema.keys),
+          "x-short-name": abbreviation(propName),
+        };
+      } else {
+        return {
+          type: "array",
+          description,
+          items: {
+            type: "string",
+          },
+          "x-short-name": abbreviation(propName),
+        };
+      }
+    case "map":
+      if (Object.keys(schema).length > 1) {
+        return toOpenapi(schema.keys, propName);
+      } else {
+        return {
+          type: "object",
+          additionalProperties: {
+            type: "string",
+          },
+          "x-short-name": abbreviation(propName),
+        };
+      }
+    case "template":
+      return {
+        type: "string",
+        description,
+        "x-short-name": abbreviation(propName),
+      };
+    case "device_class":
+      return {
+        type: "string",
+        "x-short-name": abbreviation(propName),
+        description,
+      };
+    case "icon":
+    default:
+      return {
+        type: schema.type,
+        description,
+        "x-short-name": abbreviation(propName),
+      };
+  }
+}
+
+function toOpenapiObject(properties: any, name?: string): any {
+  const objectModel = {
+    type: "object",
+    required: Object.entries(properties)
+      .filter(([_, schema]) => (schema as any).required === true)
+      .map(([name, _]) => name),
+    properties: Object.fromEntries(
+      Object.entries(properties).map(([name, schema]) => [
+        name,
+        toOpenapi(schema, name),
+      ])
+    ),
+  };
+  if (name) {
+    modelRegistry.set(name, objectModel);
+  }
+  return objectModel;
+}
+
+function abbreviation(propName: string | undefined): string | undefined {
+  return propName ? ALL_ABBREVIATIONS[propName] : undefined;
+}

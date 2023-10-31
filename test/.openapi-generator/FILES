@@ -1,0 +1,17 @@
+.gitignore
+.travis.yml
+Cargo.toml
+README.md
+docs/Availability.md
+docs/DefaultApi.md
+docs/Device.md
+docs/Sensor.md
+git_push.sh
+src/apis/configuration.rs
+src/apis/default_api.rs
+src/apis/mod.rs
+src/lib.rs
+src/models/availability.rs
+src/models/device.rs
+src/models/mod.rs
+src/models/sensor.rs

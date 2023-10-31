@@ -1,0 +1,421 @@
+# Auto-generated Openapi model from the following content:
+# 
+# availability:
+#   description: A list of MQTT topics subscribed to receive availability (online/offline) updates. Must not be used together with `availability_topic`.
+#   required: false
+#   type: list
+#   keys:
+#     payload_available:
+#       description: The payload that represents the available state.
+#       required: false
+#       type: string
+#       default: online
+#     payload_not_available:
+#       description: The payload that represents the unavailable state.
+#       required: false
+#       type: string
+#       default: offline
+#     topic:
+#       description: An MQTT topic subscribed to receive availability (online/offline) updates.
+#       required: true
+#       type: string
+#     value_template:
+#       description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract device's availability from the `topic`. To determine the devices's availability result of this template will be compared to `payload_available` and `payload_not_available`."
+#       required: false
+#       type: template
+# availability_mode:
+#   description: When `availability` is configured, this controls the conditions needed to set the entity to `available`. Valid entries are `all`, `any`, and `latest`. If set to `all`, `payload_available` must be received on all configured availability topics before the entity is marked as online. If set to `any`, `payload_available` must be received on at least one configured availability topic before the entity is marked as online. If set to `latest`, the last `payload_available` or `payload_not_available` received on any configured availability topic controls the availability.
+#   required: false
+#   type: string
+#   default: latest
+# availability_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract device's availability from the `availability_topic`. To determine the devices's availability result of this template will be compared to `payload_available` and `payload_not_available`."
+#   required: false
+#   type: template
+# availability_topic:
+#   description: The MQTT topic subscribed to receive availability (online/offline) updates. Must not be used together with `availability`.
+#   required: false
+#   type: string
+# blue_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract blue color from the state payload value. Expected result of the template is an integer from 0-255 range."
+#   required: false
+#   type: template
+# brightness_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract brightness from the state payload value. Expected result of the template is an integer from 0-255 range."
+#   required: false
+#   type: template
+# color_temp_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract color temperature from the state payload value. Expected result of the template is an integer representing mired units."
+#   required: false
+#   type: template
+# command_off_template:
+#   description: "The [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) for *off* state changes. Available variables: `state` and `transition`."
+#   required: true
+#   type: template
+# command_on_template:
+#   description: "The [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) for *on* state changes. Available variables: `state`, `brightness`, `color_temp`, `red`, `green`, `blue`, `flash`, `transition` and `effect`. Values `red`, `green`, `blue`, `brightness` are provided as integers from range 0-255. Value of `color_temp` is provided as integer representing mired units."
+#   required: true
+#   type: template
+# command_topic:
+#   description: The MQTT topic to publish commands to change the light’s state.
+#   required: true
+#   type: string
+# device:
+#   description: 'Information about the device this light is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/en/device_registry_index.html). Only works when [`unique_id`](#unique_id) is set. At least one of identifiers or connections must be present to identify the device.'
+#   required: false
+#   type: map
+#   keys:
+#     configuration_url:
+#       description: 'A link to the webpage that can manage the configuration of this device. Can be either an `http://`, `https://` or an internal `homeassistant://` URL.'
+#       required: false
+#       type: string
+#     connections:
+#       description: 'A list of connections of the device to the outside world as a list of tuples `[connection_type, connection_identifier]`. For example the MAC address of a network interface: `"connections": [["mac", "02:5b:26:a8:dc:12"]]`.'
+#       required: false
+#       type: list
+#     identifiers:
+#       description: 'A list of IDs that uniquely identify the device. For example a serial number.'
+#       required: false
+#       type: [string, list]
+#     manufacturer:
+#       description: 'The manufacturer of the device.'
+#       required: false
+#       type: string
+#     model:
+#       description: 'The model of the device.'
+#       required: false
+#       type: string
+#     name:
+#       description: 'The name of the device.'
+#       required: false
+#       type: string
+#     sw_version:
+#       description: 'The firmware version of the device.'
+#       required: false
+#       type: string
+# enabled_by_default:
+#   description: Flag which defines if the entity should be enabled when first added.
+#   required: false
+#   type: boolean
+#   default: true
+# encoding:
+#   description: The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
+#   required: false
+#   type: string
+#   default: "utf-8"
+# entity_category:
+#   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
+#   required: false
+#   type: string
+#   default: None
+# effect_list:
+#   description: List of possible effects.
+#   required: false
+#   type: [string, list]
+# effect_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract effect from the state payload value."
+#   required: false
+#   type: template
+# green_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract green color from the state payload value. Expected result of the template is an integer from 0-255 range."
+#   required: false
+#   type: template
+# icon:
+#   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
+#   required: false
+#   type: icon
+# json_attributes_template:
+#   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the JSON dictionary from messages received on the `json_attributes_topic`. Usage example can be found in [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-template-configuration) documentation."
+#   required: false
+#   type: template
+# json_attributes_topic:
+#   description: The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Usage example can be found in [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration) documentation.
+#   required: false
+#   type: string
+# max_mireds:
+#   description: The maximum color temperature in mireds.
+#   required: false
+#   type: integer
+# min_mireds:
+#   description: The minimum color temperature in mireds.
+#   required: false
+#   type: integer
+# name:
+#   description: The name of the light.
+#   required: false
+#   type: string
+#   default: MQTT Template Light
+# object_id:
+#   description: Used instead of `name` for automatic generation of `entity_id`
+#   required: false
+#   type: string
+# optimistic:
+#   description: Flag that defines if the light works in optimistic mode.
+#   required: false
+#   type: boolean
+#   default: "`true` if no state topic or state template is defined, else `false`."
+# payload_available:
+#   description: The payload that represents the available state.
+#   required: false
+#   type: string
+#   default: online
+# payload_not_available:
+#   description: The payload that represents the unavailable state.
+#   required: false
+#   type: string
+#   default: offline
+# qos:
+#   description: The maximum QoS level to be used when receiving and publishing messages.
+#   required: false
+#   type: integer
+#   default: 0
+# red_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract red color from the state payload value. Expected result of the template is an integer from 0-255 range."
+#   required: false
+#   type: template
+# schema:
+#   description: The schema to use. Must be `template` to select the template schema.
+#   required: false
+#   type: string
+#   default: default
+# state_template:
+#   description: "[Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract state from the state payload value."
+#   required: false
+#   type: template
+# state_topic:
+#   description: The MQTT topic subscribed to receive state updates.
+#   required: false
+#   type: string
+# unique_id:
+#    description: An ID that uniquely identifies this light. If two lights have the same unique ID, Home Assistant will raise an exception.
+#    required: false
+#    type: string
+# 
+
+type: object
+description: >-
+  This integration allows you to track and control various light bulbs. Read the
+  integration documentation for your particular light hardware to learn how to
+  enable it.
+required:
+  - command_off_template
+  - command_on_template
+  - command_topic
+properties:
+  availability:
+    description: >-
+      A list of MQTT topics subscribed to receive availability (online/offline)
+      updates. Must not be used together with `availability_topic`.
+    type: array
+    items:
+      payload_available:
+        description: 'The payload that represents the available state. (Default: online)'
+        type: string
+      payload_not_available:
+        description: 'The payload that represents the unavailable state. (Default: offline)'
+        type: string
+      topic:
+        description: >-
+          An MQTT topic subscribed to receive availability (online/offline)
+          updates.
+        type: string
+      value_template:
+        description: >-
+          Defines a
+          [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+          to extract device's availability from the `topic`. To determine the
+          devices's availability result of this template will be compared to
+          `payload_available` and `payload_not_available`.
+        type: string
+  availability_mode:
+    description: >-
+      When `availability` is configured, this controls the conditions needed to
+      set the entity to `available`. Valid entries are `all`, `any`, and
+      `latest`. If set to `all`, `payload_available` must be received on all
+      configured availability topics before the entity is marked as online. If
+      set to `any`, `payload_available` must be received on at least one
+      configured availability topic before the entity is marked as online. If
+      set to `latest`, the last `payload_available` or `payload_not_available`
+      received on any configured availability topic controls the availability.
+      (Default: latest)
+    type: string
+  availability_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract device's availability from the `availability_topic`. To
+      determine the devices's availability result of this template will be
+      compared to `payload_available` and `payload_not_available`.
+    type: string
+  availability_topic:
+    description: >-
+      The MQTT topic subscribed to receive availability (online/offline)
+      updates. Must not be used together with `availability`.
+    type: string
+  blue_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract blue color from the state payload value. Expected result of the
+      template is an integer from 0-255 range.
+    type: string
+  brightness_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract brightness from the state payload value. Expected result of the
+      template is an integer from 0-255 range.
+    type: string
+  color_temp_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract color temperature from the state payload value. Expected result
+      of the template is an integer representing mired units.
+    type: string
+  command_off_template:
+    description: >-
+      The
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      for *off* state changes. Available variables: `state` and `transition`.
+    type: string
+  command_on_template:
+    description: >-
+      The
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      for *on* state changes. Available variables: `state`, `brightness`,
+      `color_temp`, `red`, `green`, `blue`, `flash`, `transition` and `effect`.
+      Values `red`, `green`, `blue`, `brightness` are provided as integers from
+      range 0-255. Value of `color_temp` is provided as integer representing
+      mired units.
+    type: string
+  command_topic:
+    description: The MQTT topic to publish commands to change the light’s state.
+    type: string
+  device:
+    type: object
+    description: >-
+      Information about the device this light is a part of to tie it into the
+      [device
+      registry](https://developers.home-assistant.io/docs/en/device_registry_index.html).
+      Only works when [`unique_id`](#unique_id) is set. At least one of
+      identifiers or connections must be present to identify the device.
+    required: []
+    properties:
+      configuration_url:
+        description: >-
+          A link to the webpage that can manage the configuration of this
+          device. Can be either an `http://`, `https://` or an internal
+          `homeassistant://` URL.
+        type: string
+      connections:
+        description: >-
+          A list of connections of the device to the outside world as a list of
+          tuples `[connection_type, connection_identifier]`. For example the MAC
+          address of a network interface: `"connections": [["mac",
+          "02:5b:26:a8:dc:12"]]`.
+        type: array
+        items:
+          type: string
+      manufacturer:
+        description: The manufacturer of the device.
+        type: string
+      model:
+        description: The model of the device.
+        type: string
+      name:
+        description: The name of the device.
+        type: string
+      sw_version:
+        description: The firmware version of the device.
+        type: string
+  enabled_by_default:
+    description: >-
+      Flag which defines if the entity should be enabled when first added.
+      (Default: true)
+    type: string
+  encoding:
+    description: >-
+      The encoding of the payloads received and published messages. Set to `""`
+      to disable decoding of incoming payload. (Default: utf-8)
+    type: string
+  entity_category:
+    description: >-
+      The
+      [category](https://developers.home-assistant.io/docs/core/entity#generic-properties)
+      of the entity. (Default: None)
+    type: string
+  effect_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract effect from the state payload value.
+    type: string
+  green_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract green color from the state payload value. Expected result of
+      the template is an integer from 0-255 range.
+    type: string
+  json_attributes_template:
+    description: >-
+      Defines a
+      [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract the JSON dictionary from messages received on the
+      `json_attributes_topic`. Usage example can be found in [MQTT
+      sensor](/integrations/sensor.mqtt/#json-attributes-template-configuration)
+      documentation.
+    type: string
+  json_attributes_topic:
+    description: >-
+      The MQTT topic subscribed to receive a JSON dictionary payload and then
+      set as sensor attributes. Usage example can be found in [MQTT
+      sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration)
+      documentation.
+    type: string
+  max_mireds:
+    description: The maximum color temperature in mireds.
+    type: string
+  min_mireds:
+    description: The minimum color temperature in mireds.
+    type: string
+  name:
+    description: 'The name of the light. (Default: MQTT Template Light)'
+    type: string
+  object_id:
+    description: Used instead of `name` for automatic generation of `entity_id`
+    type: string
+  optimistic:
+    description: >-
+      Flag that defines if the light works in optimistic mode. (Default: `true`
+      if no state topic or state template is defined, else `false`.)
+    type: string
+  payload_available:
+    description: 'The payload that represents the available state. (Default: online)'
+    type: string
+  payload_not_available:
+    description: 'The payload that represents the unavailable state. (Default: offline)'
+    type: string
+  qos:
+    description: The maximum QoS level to be used when receiving and publishing messages.
+    type: string
+  red_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract red color from the state payload value. Expected result of the
+      template is an integer from 0-255 range.
+    type: string
+  schema:
+    description: >-
+      The schema to use. Must be `template` to select the template schema.
+      (Default: default)
+    type: string
+  state_template:
+    description: >-
+      [Template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+      to extract state from the state payload value.
+    type: string
+  state_topic:
+    description: The MQTT topic subscribed to receive state updates.
+    type: string
+  unique_id:
+    description: >-
+      An ID that uniquely identifies this light. If two lights have the same
+      unique ID, Home Assistant will raise an exception.
+    type: string

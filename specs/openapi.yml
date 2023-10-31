@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: Data structures for Home Assistant MQTT discovery
+  version: 1.0.0
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: null
+components:
+  schemas:
+    Sensor:
+      allOf:
+        - $ref: "fragments/common.yml#/Availability"
+        #- $ref: "common.yml#/Device"
+        - type: object
+          required:
+            - state_topic
+          properties:
+            device:
+              $ref: "fragments/common.yml#/Device"
+            device_class:
+              description: >-
+                The [type/class](/integrations/sensor/#device-class) of the sensor to set
+                the icon in the frontend. The `device_class` can be `null`. (Default:
+                None)
+              type: string
+            enabled_by_default:
+              description: >-
+                Flag which defines if the entity should be enabled when first added.
+                (Default: true)
+              type: string
+            encoding:
+              description: >-
+                The encoding of the payloads received. Set to `""` to disable decoding of
+                incoming payload. (Default: utf-8)
+              type: string
+            entity_category:
+              description: >-
+                The
+                [category](https://developers.home-assistant.io/docs/core/entity#generic-properties)
+                of the entity. (Default: None)
+              type: string
+            expire_after:
+              description: >-
+                If set, it defines the number of seconds after the sensor's state expires,
+                if it's not updated. After expiry, the sensor's state becomes
+                `unavailable`. Default the sensors state never expires.
+              type: string
+            force_update:
+              description: >-
+                Sends update events even if the value hasn't changed. Useful if you want
+                to have meaningful value graphs in history.
+              type: string
+            json_attributes_template:
+              description: >-
+                Defines a
+                [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+                to extract the JSON dictionary from messages received on the
+                `json_attributes_topic`.
+              type: string
+            json_attributes_topic:
+              description: >-
+                The MQTT topic subscribed to receive a JSON dictionary payload and then
+                set as sensor attributes. Implies `force_update` of the current sensor
+                state when a message is received on this topic.
+              type: string
+            last_reset_value_template:
+              description: >-
+                Defines a
+                [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+                to extract the last_reset. Available variables: `entity_id`. The
+                `entity_id` can be used to reference the entity's attributes.
+              type: string
+            name:
+              description: >-
+                The name of the MQTT sensor. Can be set to `null` if only the device name
+                is relevant. (Default: MQTT Sensor)
+              type: string
+            object_id:
+              description: Used instead of `name` for automatic generation of `entity_id`
+              type: string
+            suggested_display_precision:
+              description: >-
+                The number of decimals which should be used in the sensor's state after
+                rounding.
+              type: string
+            qos:
+              description: The maximum QoS level to be used when receiving and publishing messages.
+              type: string
+            state_class:
+              description: >-
+                The
+                [state_class](https://developers.home-assistant.io/docs/core/entity/sensor#available-state-classes)
+                of the sensor. (Default: None)
+              type: string
+            state_topic:
+              description: >-
+                The MQTT topic subscribed to receive sensor values. If `device_class`,
+                `state_class`, `unit_of_measurement` or `suggested_display_precision` is
+                set, and a numeric value is expected, an empty value `''` will be ignored
+                and will not update the state, a `'null'` value will set the sensor to an
+                `unknown` state. The `device_class` can be `null`. (Default: None)
+              type: string
+            unique_id:
+              description: >-
+                An ID that uniquely identifies this sensor. If two sensors have the same
+                unique ID, Home Assistant will raise an exception.
+              type: string
+            unit_of_measurement:
+              description: >-
+                Defines the units of measurement of the sensor, if any. The
+                `unit_of_measurement` can be `null`. (Default: None)
+              type: string
+            value_template:
+              description: >-
+                Defines a
+                [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration)
+                to extract the value. If the template throws an error, the current state
+                will be used instead.
+              type: string
