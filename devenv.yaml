@@ -7,9 +7,3 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
-  home-assistant-core:
-    url: github:home-assistant/core/2023.10.5
-    flake: false
-  home-assistant-docs:
-    url: github:home-assistant/home-assistant.io/current
-    flake: false
