@@ -12,6 +12,7 @@ pub mod mqtt;
 
 const ONE_WEEK_SECONDS: u32 = 60 * 60 * 24 * 7;
 
+#[derive(Clone)]
 pub struct HomeAssistantMqtt {
     client: AsyncClient,
     discovery_prefix: String,
