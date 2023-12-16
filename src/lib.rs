@@ -78,6 +78,24 @@ impl HomeAssistantMqtt {
     pub async fn publish_sensor(&self, sensor: Sensor) -> Result<()> {
         self.publish(MqttComponent::Sensor, &sensor).await
     }
+
+    pub async fn publish_data<S: Serialize>(
+        &self,
+        topic: &String,
+        payload: &S,
+        message_expiry_interval: Option<u32>,
+    ) -> Result<()> {
+        let payload = serde_json::ser::to_string(payload).unwrap();
+        let props = PublishProperties {
+            message_expiry_interval,
+            content_type: Some("application/json".to_string()),
+            ..Default::default()
+        };
+        Ok(self
+            .client
+            .publish_with_properties(topic, AtLeastOnce, true, payload, props)
+            .await?)
+    }
 }
 
 enum MqttComponent {
