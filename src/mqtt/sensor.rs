@@ -105,6 +105,14 @@ impl Sensor {
         self
     }
 
+    /// Icon for the entity.
+    /// Any icon from [MaterialDesignIcons.com](https://materialdesignicons.com/). Prefix name with `mdi:`, ie `mdi:home`.
+    /// Note: Newer icons may not yet be available in the current Home Assistant release. You can check when an icon was added to MaterialDesignIcons.com at [MDI History](https://materialdesignicons.com/history).
+    pub fn icon<S: Into<String>>(mut self, icon: S) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
     /// Used instead of `name` for automatic generation of `entity_id`.
     pub fn object_id<S: Into<String>>(mut self, id: S) -> Self {
         self.object_id = Some(id.into());
@@ -433,16 +441,15 @@ mod tests {
 
     #[test]
     fn can_use_builder_with_defaults() {
-        let sensor = SensorBuilder::default()
+        let sensor = Sensor::default()
             .topic_prefix("topic/prefix")
             .origin(Origin::new("application name"))
+            .object_id("object-id")
+            .unique_id("unique-id")
             .device(
-                Device::new()
+                Device::default()
                     .name("device name")
-                    .add_identifier("device id")
-                    .object_id("object-id")
-                    .unique_id("unique-id")
-                    .build(),
+                    .add_identifier("device id"),
             )
             .availability(Availability::single_topic("~/availability").expire_after(60))
             .enabled_by_default(true)
@@ -454,8 +461,7 @@ mod tests {
             .name("sensor name".to_string())
             .suggested_display_precision(1)
             .state_class(SensorStateClass::Measurement)
-            .unit_of_measurement(Unit::Temperature(TempUnit::Celsius))
-            .build();
+            .unit_of_measurement(Unit::Temperature(TempUnit::Celsius));
         assert_json_eq!(
             json! (
             {
@@ -464,7 +470,10 @@ mod tests {
                 "name": "application name"
               },
               "dev": {
-                "name": "device name"
+                "name": "device name",
+                "ids": [
+                    "device id"
+                ]
               },
               "obj_id": "object-id",
               "uniq_id": "unique-id",

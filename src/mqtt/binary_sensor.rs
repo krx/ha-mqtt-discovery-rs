@@ -97,6 +97,14 @@ impl BinarySensor {
         self
     }
 
+    /// Icon for the entity.
+    /// Any icon from [MaterialDesignIcons.com](https://materialdesignicons.com/). Prefix name with `mdi:`, ie `mdi:home`.
+    /// Note: Newer icons may not yet be available in the current Home Assistant release. You can check when an icon was added to MaterialDesignIcons.com at [MDI History](https://materialdesignicons.com/history).
+    pub fn icon<S: Into<String>>(mut self, icon: S) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
     /// Used instead of `name` for automatic generation of `entity_id`.
     pub fn object_id<S: Into<String>>(mut self, id: S) -> Self {
         self.object_id = Some(id.into());
@@ -135,7 +143,7 @@ impl BinarySensor {
         self
     }
 
-    /// The [type/class](https://www.home-assistant.io/integrations/sensor/#device-class) of the sensor to set the icon in the frontend. The `device_class` can be `null`.
+    /// The [type/class](https://www.home-assistant.io/integrations/binary_sensor/#device-class) of the sensor to set the icon in the frontend. The `device_class` can be `null`.
     pub fn device_class(mut self, device_class: BinarySensorDeviceClass) -> Self {
         self.device_class = Some(device_class);
         self

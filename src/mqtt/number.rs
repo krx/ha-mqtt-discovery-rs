@@ -63,7 +63,7 @@ pub struct Number {
     /// If the published message should have the retain flag on or not. (optional, default: `false`)
     #[serde(rename = "ret")]
     pub retain: Option<bool>,
-    /// Sets the [class of the device](https://www.home-assistant.io/integrations/binary_sensor/#device-class), changing the device state and icon that is displayed on the frontend. The `device_class` can be `null`.
+    /// Sets the [class of the device](https://www.home-assistant.io/integrations/number/#device-class), changing the device state and icon that is displayed on the frontend. The `device_class` can be `null`.
     #[serde(rename = "dev_cla", skip_serializing_if = "Option::is_none")]
     pub device_class: Option<NumberDeviceClass>,
     /// The name of the Number. Can be set to `null` if only the device name is relevant.
@@ -87,6 +87,127 @@ pub struct Number {
     /// Defines the unit of measurement of the sensor, if any. The `unit_of_measurement` can be `null`. (optional)
     #[serde(rename = "unit_of_meas", skip_serializing_if = "Option::is_none")]
     pub unit_of_measurement: Option<Unit>,
+}
+
+impl Number {
+    /// Replaces `~` with this value in any MQTT topic attribute.
+    /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
+    pub fn topic_prefix<S: Into<String>>(mut self, topic_prefix: S) -> Self {
+        self.topic_prefix = Some(topic_prefix.into());
+        self
+    }
+
+    /// It is encouraged to add additional information about the origin that supplies MQTT entities via MQTT discovery by adding the origin option (can be abbreviated to o) to the discovery payload. Note that these options also support abbreviations. Information of the origin will be logged to the core event log when an item is discovered or updated.
+    pub fn origin(mut self, origin: Origin) -> Self {
+        self.origin = origin;
+        self
+    }
+
+    /// Information about the device this sensor is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/device_registry_index/). Only works when `unique_id` is set. At least one of identifiers or connections must be present to identify the device.
+    pub fn device(mut self, device: Device) -> Self {
+        self.device = device;
+        self
+    }
+
+    /// The category of the entity. (optional, default: None)
+    pub fn entity_category(mut self, entity_category: EntityCategory) -> Self {
+        self.entity_category = Some(entity_category);
+        self
+    }
+
+    /// Icon for the entity.
+    /// Any icon from [MaterialDesignIcons.com](https://materialdesignicons.com/). Prefix name with `mdi:`, ie `mdi:home`.
+    /// Note: Newer icons may not yet be available in the current Home Assistant release. You can check when an icon was added to MaterialDesignIcons.com at [MDI History](https://materialdesignicons.com/history).
+    pub fn icon<S: Into<String>>(mut self, icon: S) -> Self {
+        self.icon = Some(icon.into());
+        self
+    }
+
+    /// Used instead of `name` for automatic generation of `entity_id`.
+    pub fn object_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.object_id = Some(id.into());
+        self
+    }
+    /// An ID that uniquely identifies this sensor.
+    /// If two sensors have the same unique ID, Home Assistant will raise an exception.
+    pub fn unique_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.unique_id = Some(id.into());
+        self
+    }
+
+    /// Defines how HA will check for entity availability.
+    pub fn availability(mut self, availability: Availability) -> Self {
+        self.availability = availability;
+        self
+    }
+
+    /// Flag which defines if the entity should be enabled when first added.
+    pub fn enabled_by_default(mut self, enabled_by_default: bool) -> Self {
+        self.enabled_by_default = Some(enabled_by_default);
+        self
+    }
+
+    /// The MQTT topic subscribed to receive sensor values.
+    /// If `device_class`, `state_class`, `unit_of_measurement` or `suggested_display_precision` is set, and a numeric value is expected, an empty value `''` will be ignored and will not update the state, a `'null'` value will set the sensor to an `unknown` state. The `device_class` can be `null`.
+    pub fn state_topic<S: Into<String>>(mut self, state_topic: S) -> Self {
+        self.state_topic = state_topic.into();
+        self
+    }
+
+    /// Defines a [template](https://www.home-assistant.io/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
+    /// If the template throws an error, the current state will be used instead.
+    pub fn value_template<S: Into<String>>(mut self, value_template: S) -> Self {
+        self.value_template = Some(value_template.into());
+        self
+    }
+
+    /// The [type/class](https://www.home-assistant.io/integrations/number/#device-class) of the sensor to set the icon in the frontend. The `device_class` can be `null`.
+    pub fn device_class(mut self, device_class: NumberDeviceClass) -> Self {
+        self.device_class = Some(device_class);
+        self
+    }
+
+    /// The name of the MQTT sensor. Can be set to null if only the device name is relevant.
+    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    /// Minimum value. (optional, default: 1)
+    pub fn min(mut self, min: f64) -> Self {
+        self.min = Some(min);
+        self
+    }
+
+    /// Maximum value. (optional, default: 100)
+    pub fn max(mut self, max: f64) -> Self {
+        self.max = Some(max);
+        self
+    }
+
+    /// Control how the number sh0.001ould be displayed in the UI. Can be set to `box` or `slider` to force a display mode. (optional, default: `auto`)
+    pub fn mode(mut self, mode: DisplayMode) -> Self {
+        self.mode = Some(mode);
+        self
+    }
+
+    /// A special payload that resets the state to unknown when received on the `state_topic`. (optional, default: `None`)
+    pub fn payload_reset<S: Into<String>>(mut self, payload_reset: S) -> Self {
+        self.payload_reset = Some(payload_reset.into());
+        self
+    }
+
+    /// Step value. Smallest value `0.001`. (optional, default: 1)
+    pub fn step(mut self, step: f64) -> Self {
+        self.step = Some(step);
+        self
+    }
+
+    /// Defines the units of measurement of the sensor, if any.
+    pub fn unit_of_measurement(mut self, unit_of_measurement: Unit) -> Self {
+        self.unit_of_measurement = Some(unit_of_measurement);
+        self
+    }
 }
 
 #[allow(dead_code)]
