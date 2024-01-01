@@ -37,7 +37,7 @@ impl HomeAssistantMqtt {
     /// The `<node_id>` level can be used by clients to only subscribe to their own (command) topics by using one wildcard topic like <discovery_prefix>/+/<node_id>/+/set.
     ///
     /// Best practice for entities with a unique_id is to set `<object_id>` to unique_id and omit the `<node_id>`.
-    async fn publish<S: Serialize>(&self, component: MqttComponent, entity: &S) -> Result<()> {
+    async fn publish<S: Serialize>(&self, component: Entity, entity: &S) -> Result<()> {
         let attributes = serde_json::to_value(entity)?;
         let object_id = attributes
             .as_object()
@@ -67,16 +67,15 @@ impl HomeAssistantMqtt {
     }
 
     pub async fn publish_binary_sensor(&self, binary_sensor: BinarySensor) -> Result<()> {
-        self.publish(MqttComponent::BinarySensor, &binary_sensor)
-            .await
+        self.publish(Entity::BinarySensor, &binary_sensor).await
     }
 
     pub async fn publish_number(&self, number: Number) -> Result<()> {
-        self.publish(MqttComponent::Number, &number).await
+        self.publish(Entity::Number, &number).await
     }
 
     pub async fn publish_sensor(&self, sensor: Sensor) -> Result<()> {
-        self.publish(MqttComponent::Sensor, &sensor).await
+        self.publish(Entity::Sensor, &sensor).await
     }
 
     pub async fn publish_data<S: Serialize>(
@@ -98,18 +97,18 @@ impl HomeAssistantMqtt {
     }
 }
 
-enum MqttComponent {
+enum Entity {
     BinarySensor,
     Number,
     Sensor,
 }
 
-impl Display for MqttComponent {
+impl Display for Entity {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let name = match self {
-            MqttComponent::Sensor => "sensor",
-            MqttComponent::Number => "number",
-            MqttComponent::BinarySensor => "binary_sensor",
+            Entity::Sensor => "sensor",
+            Entity::Number => "number",
+            Entity::BinarySensor => "binary_sensor",
         };
         write!(f, "{name}")
     }

@@ -1,82 +1,6 @@
 use serde::ser::SerializeSeq;
 use serde_derive::Serialize;
 
-/// Common attributes for all MQTT entities.
-#[derive(Clone, Debug, PartialEq, Serialize)]
-pub struct MqttCommon {
-    #[serde(rename = "~")]
-    pub topic_prefix: Option<String>,
-    #[serde(rename = "o")]
-    pub origin: Origin,
-    #[serde(rename = "dev")]
-    pub device: Device,
-    /// The category of the entity. (optional, default: None)
-    #[serde(rename = "ent_cat", skip_serializing_if = "Option::is_none")]
-    pub entity_category: Option<EntityCategory>,
-    /// Icon for the entity.
-    /// Any icon from [MaterialDesignIcons.com](https://materialdesignicons.com/). Prefix name with `mdi:`, ie `mdi:home`.
-    /// Note: Newer icons may not yet be available in the current Home Assistant release. You can check when an icon was added to MaterialDesignIcons.com at [MDI History](https://materialdesignicons.com/history).
-    #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
-    pub icon: Option<String>,
-    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Implies force_update of the current sensor state when a message is received on this topic. (optional)
-    #[serde(rename = "json_attr_t", skip_serializing_if = "Option::is_none")]
-    pub json_attributes_topic: Option<String>,
-    /// Defines a template to extract the JSON dictionary from messages received on the `json_attributes_topic`. (optional)
-    #[serde(rename = "json_attr_tpl", skip_serializing_if = "Option::is_none")]
-    pub json_attributes_template: Option<String>,
-    /// Used instead of `name` for automatic generation of `entity_id`.
-    #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
-    pub object_id: Option<String>,
-    /// An ID that uniquely identifies this sensor.
-    /// If two sensors have the same unique ID, Home Assistant will raise an exception.
-    #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
-    pub unique_id: Option<String>,
-    /// Defines how HA will check for entity availability.
-    #[serde(flatten)]
-    pub availability: Availability,
-    /// Flag which defines if the entity should be enabled when first added.
-    #[serde(rename = "en", skip_serializing_if = "Option::is_none")]
-    pub enabled_by_default: Option<bool>,
-}
-
-/// Common attributes for read only entities.
-#[derive(Clone, Debug, PartialEq, Serialize)]
-pub struct ReadOnlyEntity {
-    /// The MQTT topic subscribed to receive sensor values.
-    /// If `device_class`, `state_class`, `unit_of_measurement` or `suggested_display_precision` is set, and a numeric value is expected, an empty value `''` will be ignored and will not update the state, a `'null'` value will set the sensor to an `unknown` state. The `device_class` can be `null`.
-    #[serde(rename = "stat_t")]
-    pub state_topic: String,
-    /// Defines a [template](https://www.home-assistant.io/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
-    /// If the template throws an error, the current state will be used instead.
-    #[serde(rename = "val_tpl", skip_serializing_if = "Option::is_none")]
-    pub value_template: Option<String>,
-}
-
-/// Common attributes for read/write entities.
-#[derive(Clone, Debug, PartialEq, Serialize)]
-pub struct ReadWriteEntity {
-    /// The MQTT topic subscribed to receive sensor values.
-    /// If `device_class`, `state_class`, `unit_of_measurement` or `suggested_display_precision` is set, and a numeric value is expected, an empty value `''` will be ignored and will not update the state, a `'null'` value will set the sensor to an `unknown` state. The `device_class` can be `null`.
-    #[serde(rename = "stat_t")]
-    pub state_topic: String,
-    /// Defines a [template](https://www.home-assistant.io/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
-    /// If the template throws an error, the current state will be used instead.
-    #[serde(rename = "val_tpl", skip_serializing_if = "Option::is_none")]
-    pub value_template: Option<String>,
-    /// The MQTT topic to publish commands to change the number.
-    #[serde(rename = "cmd_t")]
-    pub command_topic: String,
-    /// Defines a template to generate the payload to send to command_topic.
-    #[serde(rename = "cmd_tpl")]
-    pub command_template: Option<String>,
-    /// Flag that defines if number works in optimistic mode. Default: `true` if no `state_topic` defined, else `false`.
-    #[serde(rename = "opt")]
-    pub optimistic: Option<bool>,
-    /// If the published message should have the retain flag on or not. (optional, default: `false`)
-    #[serde(rename = "ret")]
-    pub retain: Option<bool>,
-}
-
 /// Classification of a non-primary entity.
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -93,7 +17,7 @@ pub enum EntityCategory {
 }
 
 /// It is encouraged to add additional information about the origin that supplies MQTT entities via MQTT discovery by adding the origin option (can be abbreviated to o) to the discovery payload. Note that these options also support abbreviations. Information of the origin will be logged to the core event log when an item is discovered or updated.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct Origin {
     /// The name of the application that is the origin the discovered MQTT item. This option is required.
     #[serde(rename = "name")]
@@ -106,8 +30,30 @@ pub struct Origin {
     pub support_url: Option<String>,
 }
 
+impl Origin {
+    /// The name of the application that is the origin the discovered MQTT item. This option is required.
+    pub fn new<S: Into<String>>(name: S) -> Self {
+        Origin {
+            name: name.into(),
+            ..Default::default()
+        }
+    }
+
+    /// Software version of the application that supplies the discovered MQTT item.
+    pub fn with_sw_version<S: Into<String>>(mut self, sw_version: S) -> Self {
+        self.sw_version = Some(sw_version.into());
+        self
+    }
+
+    /// Support URL of the application that supplies the discovered MQTT item.
+    pub fn with_support_url<S: Into<String>>(mut self, support_url: S) -> Self {
+        self.support_url = Some(support_url.into());
+        self
+    }
+}
+
 /// Information about the device this sensor is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/device_registry_index/). Only works when `unique_id` is set. At least one of identifiers or connections must be present to identify the device.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct Device {
     /// The name of the device.
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
@@ -139,6 +85,68 @@ pub struct Device {
     /// Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device. This is used to show device topology in Home Assistant.
     #[serde(rename = "via_device", skip_serializing_if = "Option::is_none")]
     pub via_device: Option<String>,
+}
+
+impl Device {
+    /// The name of the device.
+    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    /// Add an ID that uniquely identify the device. For example a serial number.
+    pub fn add_identifier<S: Into<String>>(mut self, identifier: S) -> Self {
+        self.identifiers.push(identifier.into());
+        self
+    }
+
+    /// Add an ID that uniquely identify the device. For example a serial number.
+    pub fn add_connection(mut self, connection: DeviceConnection) -> Self {
+        self.connections.push(connection);
+        self
+    }
+
+    /// A link to the webpage that can manage the configuration of this device. Can be either an `http://`, `https://` or an internal `homeassistant://` URL.
+    pub fn configuration_url<S: Into<String>>(mut self, configuration_url: S) -> Self {
+        self.configuration_url = Some(configuration_url.into());
+        self
+    }
+
+    /// The manufacturer of the device.
+    pub fn manufacturer<S: Into<String>>(mut self, manufacturer: S) -> Self {
+        self.manufacturer = Some(manufacturer.into());
+        self
+    }
+
+    /// The model of the device.
+    pub fn model<S: Into<String>>(mut self, model: S) -> Self {
+        self.model = Some(model.into());
+        self
+    }
+
+    /// Suggest an area if the device isn’t in one yet.
+    pub fn suggested_area<S: Into<String>>(mut self, suggested_area: S) -> Self {
+        self.suggested_area = Some(suggested_area.into());
+        self
+    }
+
+    /// The firmware version of the device.
+    pub fn sw_version<S: Into<String>>(mut self, sw_version: S) -> Self {
+        self.sw_version = Some(sw_version.into());
+        self
+    }
+
+    /// The hardware version of the device.
+    pub fn hw_version<S: Into<String>>(mut self, hw_version: S) -> Self {
+        self.hw_version = Some(hw_version.into());
+        self
+    }
+
+    /// Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device. This is used to show device topology in Home Assistant.
+    pub fn via_device<S: Into<String>>(mut self, via_device: S) -> Self {
+        self.via_device = Some(via_device.into());
+        self
+    }
 }
 
 /// A tuple `[connection_type, connection_identifier]`.
@@ -196,7 +204,7 @@ pub enum SensorStateClass {
     TotalIncreasing,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct Availability {
     /// Controls the conditions needed to set the entity to `available`.
     #[serde(rename = "avty_mode")]
@@ -204,10 +212,16 @@ pub struct Availability {
     /// A list of MQTT topics subscribed to receive availability (online/offline) updates. Must not be used together with `availability_topic`.
     #[serde(rename = "avty")]
     pub availability: Vec<AvailabilityCheck>,
+    /// If set, it defines the number of seconds after the sensor’s state expires, if it’s not updated.
+    /// After expiry, the sensor’s state becomes unavailable. Default the sensors state never expires.
+    /// (optional, default: 0)
+    #[serde(rename = "exp_aft", skip_serializing_if = "Option::is_none")]
+    pub expire_after: Option<u64>,
 }
 
 #[allow(dead_code)]
 impl Availability {
+    /// An availability checker using a single topic and the default `online` and `offline` payloads.
     pub fn single_topic(topic: &str) -> Self {
         Self::single(AvailabilityCheck {
             payload_available: None,
@@ -217,40 +231,55 @@ impl Availability {
         })
     }
 
+    /// An availability checker using a single check.
     pub fn single(availability: AvailabilityCheck) -> Self {
         Self {
             mode: AvailabilityMode::All,
             availability: vec![availability],
+            expire_after: None,
         }
     }
 
+    /// An availability checker requiring all the given checks.
     pub fn all(checks: Vec<AvailabilityCheck>) -> Self {
         Self {
             mode: AvailabilityMode::All,
             availability: checks,
+            expire_after: None,
         }
     }
 
+    /// An availability checker requiring any the given checks.
     pub fn any(checks: Vec<AvailabilityCheck>) -> Self {
         Self {
             mode: AvailabilityMode::Any,
             availability: checks,
+            expire_after: None,
         }
     }
 
+    /// See `AvailabilityCheck::Latest`
     pub fn latest(checks: Vec<AvailabilityCheck>) -> Self {
         Self {
             mode: AvailabilityMode::Latest,
             availability: checks,
+            expire_after: None,
         }
+    }
+
+    /// Sets the number of seconds after the sensor’s state expires, if it’s not updated. After expiry, the sensor’s state becomes unavailable. Default the sensors state never expires.
+    pub fn expire_after(mut self, expire_after: u64) -> Self {
+        self.expire_after = Some(expire_after);
+        self
     }
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub enum AvailabilityMode {
     /// `payload_available` must be received on all configured availability topics before the entity is marked as online.
     #[serde(rename = "all")]
+    #[default]
     All,
     /// `payload_available` must be received on at least one configured availability topic before the entity is marked as online.
     #[serde(rename = "any")]
@@ -260,7 +289,7 @@ pub enum AvailabilityMode {
     Latest,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct AvailabilityCheck {
     /// The payload that represents the available state. (optional, default: `online`)
     #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
@@ -276,95 +305,40 @@ pub struct AvailabilityCheck {
     pub value_template: Option<String>,
 }
 
+impl AvailabilityCheck {
+    /// An MQTT topic subscribed to receive availability (online/offline) updates.
+    pub fn topic<S: Into<String>>(topic: S) -> Self {
+        Self {
+            topic: topic.into(),
+            ..Default::default()
+        }
+    }
+
+    /// The payload that represents the available state. (optional, default: `online`)
+    pub fn payload_available<S: Into<String>>(mut self, payload_available: S) -> Self {
+        self.payload_available = Some(payload_available.into());
+        self
+    }
+
+    /// The payload that represents the unavailable state. (optional, default: `offline`)
+    pub fn payload_not_available<S: Into<String>>(mut self, payload_not_available: S) -> Self {
+        self.payload_not_available = Some(payload_not_available.into());
+        self
+    }
+
+    /// Defines a template to extract device’s availability from the topic. To determine the devices’s availability result of this template will be compared to payload_available and payload_not_available.
+    pub fn value_template<S: Into<String>>(mut self, value_template: S) -> Self {
+        self.value_template = Some(value_template.into());
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use assert_json_diff::assert_json_eq;
     use serde_json::json;
 
     use super::*;
-
-    #[test]
-    fn can_serialize_common() {
-        let common = MqttCommon {
-            topic_prefix: Some("topic/prefix".to_string()),
-            origin: Origin {
-                name: "application name".to_string(),
-                sw_version: Some("software version".to_string()),
-                support_url: Some("https://github.com".to_string()),
-            },
-            device: Device {
-                name: Some("device name".to_string()),
-                identifiers: vec!["device id".to_string()],
-                connections: vec![DeviceConnection::mac("connection id")],
-                configuration_url: Some("http://config.url".to_string()),
-                manufacturer: Some("device manufacturer".to_string()),
-                model: Some("device model".to_string()),
-                suggested_area: Some("area".to_string()),
-                sw_version: Some("sw_v".to_string()),
-                hw_version: Some("hw_v".to_string()),
-                via_device: Some("via".to_string()),
-            },
-            entity_category: Some(EntityCategory::Config),
-            icon: Some("mdi:home".to_string()),
-            json_attributes_topic: Some("~/attrs_topic".to_string()),
-            json_attributes_template: Some("{{ json_value.attrs }}".to_string()),
-            object_id: Some("object-id".to_string()),
-            unique_id: Some("unique-id".to_string()),
-            availability: Availability::single(AvailabilityCheck {
-                payload_available: Some("online".to_string()),
-                payload_not_available: Some("offline".to_string()),
-                topic: "~/availability".to_string(),
-                value_template: Some("{{ value }}".to_string()),
-            }),
-            enabled_by_default: Some(true),
-        };
-        assert_json_eq!(
-            json! ({
-              "~": "topic/prefix",
-              "o": {
-                "name": "application name",
-                "sw": "software version",
-                "support_url": "https://github.com"
-              },
-              "dev": {
-                "name": "device name",
-                "ids": [
-                  "device id"
-                ],
-                "cns": [
-                  [
-                    "mac",
-                    "connection id"
-                  ]
-                ],
-                "cu": "http://config.url",
-                "mf": "device manufacturer",
-                "mdl": "device model",
-                "sa": "area",
-                "sw": "sw_v",
-                "hw": "hw_v",
-                "via_device": "via"
-              },
-              "ent_cat": "config",
-              "ic": "mdi:home",
-              "json_attr_t": "~/attrs_topic",
-              "json_attr_tpl": "{{ json_value.attrs }}",
-              "obj_id": "object-id",
-              "uniq_id": "unique-id",
-              "avty_mode": "all",
-              "avty": [
-                {
-                  "pl_avail": "online",
-                  "pl_not_avail": "offline",
-                  "t": "~/availability",
-                  "val_tpl": "{{ value }}"
-                }
-              ],
-              "en": true
-            }),
-            serde_json::to_value(&common).unwrap()
-        );
-    }
 
     #[test]
     fn can_serialize_origin() {

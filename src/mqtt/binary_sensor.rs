@@ -1,24 +1,58 @@
 use serde_derive::Serialize;
 
-use super::common::{MqttCommon, ReadOnlyEntity};
+use super::common::{Availability, Device, EntityCategory, Origin};
 
 /// Binary sensors are similar to other sensors in that they monitor the states and conditions of different entities. Where binary sensors differ is they can only return one of two mutually exclusive values. For example, a binary sensor for a window may report a value of open or closed, a switch on or off, a condition true or false.
 ///
 /// This either/or constraint is what makes these sensors binary. They are digital in nature, whereas analog sensors, like temperature and weight sensors, return a range of values.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct BinarySensor {
+    /// Replaces `~` with this value in any MQTT topic attribute.
+    /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
+    #[serde(rename = "~")]
+    pub topic_prefix: Option<String>,
+    #[serde(rename = "o")]
+    pub origin: Origin,
+    #[serde(rename = "dev")]
+    pub device: Device,
+    /// The category of the entity. (optional, default: None)
+    #[serde(rename = "ent_cat", skip_serializing_if = "Option::is_none")]
+    pub entity_category: Option<EntityCategory>,
+    /// Icon for the entity.
+    /// Any icon from [MaterialDesignIcons.com](https://materialdesignicons.com/). Prefix name with `mdi:`, ie `mdi:home`.
+    /// Note: Newer icons may not yet be available in the current Home Assistant release. You can check when an icon was added to MaterialDesignIcons.com at [MDI History](https://materialdesignicons.com/history).
+    #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Implies force_update of the current sensor state when a message is received on this topic. (optional)
+    #[serde(rename = "json_attr_t", skip_serializing_if = "Option::is_none")]
+    pub json_attributes_topic: Option<String>,
+    /// Defines a template to extract the JSON dictionary from messages received on the `json_attributes_topic`. (optional)
+    #[serde(rename = "json_attr_tpl", skip_serializing_if = "Option::is_none")]
+    pub json_attributes_template: Option<String>,
+    /// Used instead of `name` for automatic generation of `entity_id`.
+    #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
+    pub object_id: Option<String>,
+    /// An ID that uniquely identifies this sensor.
+    /// If two sensors have the same unique ID, Home Assistant will raise an exception.
+    #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
+    pub unique_id: Option<String>,
+    /// Defines how HA will check for entity availability.
     #[serde(flatten)]
-    pub common: MqttCommon,
-    #[serde(flatten)]
-    pub ro_entity: ReadOnlyEntity,
+    pub availability: Availability,
+    /// Flag which defines if the entity should be enabled when first added.
+    #[serde(rename = "en", skip_serializing_if = "Option::is_none")]
+    pub enabled_by_default: Option<bool>,
+    /// The MQTT topic subscribed to receive sensor values.
+    /// If `device_class`, `state_class`, `unit_of_measurement` or `suggested_display_precision` is set, and a numeric value is expected, an empty value `''` will be ignored and will not update the state, a `'null'` value will set the sensor to an `unknown` state. The `device_class` can be `null`.
+    #[serde(rename = "stat_t")]
+    pub state_topic: String,
+    /// Defines a [template](https://www.home-assistant.io/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
+    /// If the template throws an error, the current state will be used instead.
+    #[serde(rename = "val_tpl", skip_serializing_if = "Option::is_none")]
+    pub value_template: Option<String>,
     /// Sets the [class of the device](https://www.home-assistant.io/integrations/binary_sensor/#device-class), changing the device state and icon that is displayed on the frontend. The `device_class` can be `null`.
     #[serde(rename = "dev_cla", skip_serializing_if = "Option::is_none")]
     pub device_class: Option<BinarySensorDeviceClass>,
-    /// If set, it defines the number of seconds after the sensor’s state expires, if it’s not updated.
-    /// After expiry, the sensor’s state becomes unavailable. Default the sensors state never expires.
-    /// (optional, default: 0)
-    #[serde(rename = "exp_aft", skip_serializing_if = "Option::is_none")]
-    pub expire_after: Option<u64>,
     /// Sends update events even if the value hasn’t changed.
     /// Useful if you want to have meaningful value graphs in history.
     #[serde(rename = "frc_upd", skip_serializing_if = "Option::is_none")]
@@ -35,6 +69,108 @@ pub struct BinarySensor {
     /// The string that represents the `on` state. It will be compared to the message in the `state_topic` (see `value_template` for details). (optional, default: ON)
     #[serde(rename = "pl_on", skip_serializing_if = "Option::is_none")]
     pub payload_on: Option<String>,
+}
+
+impl BinarySensor {
+    /// Replaces `~` with this value in any MQTT topic attribute.
+    /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
+    pub fn topic_prefix<S: Into<String>>(mut self, topic_prefix: S) -> Self {
+        self.topic_prefix = Some(topic_prefix.into());
+        self
+    }
+
+    /// It is encouraged to add additional information about the origin that supplies MQTT entities via MQTT discovery by adding the origin option (can be abbreviated to o) to the discovery payload. Note that these options also support abbreviations. Information of the origin will be logged to the core event log when an item is discovered or updated.
+    pub fn origin(mut self, origin: Origin) -> Self {
+        self.origin = origin;
+        self
+    }
+
+    /// Information about the device this sensor is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/device_registry_index/). Only works when `unique_id` is set. At least one of identifiers or connections must be present to identify the device.
+    pub fn device(mut self, device: Device) -> Self {
+        self.device = device;
+        self
+    }
+
+    /// The category of the entity. (optional, default: None)
+    pub fn entity_category(mut self, entity_category: EntityCategory) -> Self {
+        self.entity_category = Some(entity_category);
+        self
+    }
+
+    /// Used instead of `name` for automatic generation of `entity_id`.
+    pub fn object_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.object_id = Some(id.into());
+        self
+    }
+    /// An ID that uniquely identifies this sensor.
+    /// If two sensors have the same unique ID, Home Assistant will raise an exception.
+    pub fn unique_id<S: Into<String>>(mut self, id: S) -> Self {
+        self.unique_id = Some(id.into());
+        self
+    }
+
+    /// Defines how HA will check for entity availability.
+    pub fn availability(mut self, availability: Availability) -> Self {
+        self.availability = availability;
+        self
+    }
+
+    /// Flag which defines if the entity should be enabled when first added.
+    pub fn enabled_by_default(mut self, enabled_by_default: bool) -> Self {
+        self.enabled_by_default = Some(enabled_by_default);
+        self
+    }
+
+    /// The MQTT topic subscribed to receive sensor values.
+    /// If `device_class`, `state_class`, `unit_of_measurement` or `suggested_display_precision` is set, and a numeric value is expected, an empty value `''` will be ignored and will not update the state, a `'null'` value will set the sensor to an `unknown` state. The `device_class` can be `null`.
+    pub fn state_topic<S: Into<String>>(mut self, state_topic: S) -> Self {
+        self.state_topic = state_topic.into();
+        self
+    }
+
+    /// Defines a [template](https://www.home-assistant.io/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
+    /// If the template throws an error, the current state will be used instead.
+    pub fn value_template<S: Into<String>>(mut self, value_template: S) -> Self {
+        self.value_template = Some(value_template.into());
+        self
+    }
+
+    /// The [type/class](https://www.home-assistant.io/integrations/sensor/#device-class) of the sensor to set the icon in the frontend. The `device_class` can be `null`.
+    pub fn device_class(mut self, device_class: BinarySensorDeviceClass) -> Self {
+        self.device_class = Some(device_class);
+        self
+    }
+
+    /// Sends update events even if the value hasn’t changed.
+    /// Useful if you want to have meaningful value graphs in history.
+    pub fn force_update(mut self, force_update: bool) -> Self {
+        self.force_update = Some(force_update);
+        self
+    }
+
+    /// The name of the MQTT sensor. Can be set to null if only the device name is relevant.
+    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    /// For sensors that only send `on` state updates (like PIRs), this variable sets a delay in seconds after which the sensor’s state will be updated back to `off`. (optional)
+    pub fn off_delay(mut self, off_delay: u32) -> Self {
+        self.off_delay = Some(off_delay);
+        self
+    }
+
+    /// The string that represents the `off` state. It will be compared to the message in the `state_topic` (see `value_template` for details). (optional, default: OFF)
+    pub fn payload_off<S: Into<String>>(mut self, payload_off: S) -> Self {
+        self.payload_off = Some(payload_off.into());
+        self
+    }
+
+    /// The string that represents the `on` state. It will be compared to the message in the `state_topic` (see `value_template` for details). (optional, default: ON)
+    pub fn payload_on<S: Into<String>>(mut self, payload_on: S) -> Self {
+        self.payload_on = Some(payload_on.into());
+        self
+    }
 }
 
 #[allow(dead_code)]
@@ -138,40 +274,35 @@ mod tests {
     #[test]
     fn can_serialize_sensor() {
         let sensor = BinarySensor {
-            common: MqttCommon {
-                topic_prefix: Some("topic/prefix".to_string()),
-                origin: Origin {
-                    name: "application name".to_string(),
-                    sw_version: None,
-                    support_url: None,
-                },
-                device: Device {
-                    name: Some("device name".to_string()),
-                    identifiers: vec![],
-                    connections: vec![],
-                    configuration_url: None,
-                    manufacturer: None,
-                    model: None,
-                    suggested_area: None,
-                    sw_version: None,
-                    hw_version: None,
-                    via_device: None,
-                },
-                entity_category: None,
-                icon: None,
-                json_attributes_topic: None,
-                json_attributes_template: None,
-                object_id: Some("object-id".to_string()),
-                unique_id: Some("unique-id".to_string()),
-                availability: Availability::single_topic("~/availability"),
-                enabled_by_default: Some(true),
+            topic_prefix: Some("topic/prefix".to_string()),
+            origin: Origin {
+                name: "application name".to_string(),
+                sw_version: None,
+                support_url: None,
             },
-            ro_entity: ReadOnlyEntity {
-                state_topic: "~/state".to_string(),
-                value_template: Some("{{ value }}".to_string()),
+            device: Device {
+                name: Some("device name".to_string()),
+                identifiers: vec![],
+                connections: vec![],
+                configuration_url: None,
+                manufacturer: None,
+                model: None,
+                suggested_area: None,
+                sw_version: None,
+                hw_version: None,
+                via_device: None,
             },
+            entity_category: None,
+            icon: None,
+            json_attributes_topic: None,
+            json_attributes_template: None,
+            object_id: Some("object-id".to_string()),
+            unique_id: Some("unique-id".to_string()),
+            availability: Availability::single_topic("~/availability").expire_after(60),
+            enabled_by_default: Some(true),
+            state_topic: "~/state".to_string(),
+            value_template: Some("{{ value }}".to_string()),
             device_class: Some(BinarySensorDeviceClass::Door),
-            expire_after: Some(60),
             force_update: Some(true),
             name: Some("sensor name".to_string()),
             off_delay: Some(10),

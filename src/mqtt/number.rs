@@ -1,25 +1,71 @@
 use serde_derive::Serialize;
 
 use super::{
-    common::{MqttCommon, ReadWriteEntity},
+    common::{Availability, Device, EntityCategory, Origin},
     units::Unit,
 };
 
 /// Keeps track on number entities in your environment, their state, and allows you to control them. This integration allows other integrations to get a value input from user within a range.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct Number {
+    /// Replaces `~` with this value in any MQTT topic attribute.
+    /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
+    #[serde(rename = "~")]
+    pub topic_prefix: Option<String>,
+    #[serde(rename = "o")]
+    pub origin: Origin,
+    #[serde(rename = "dev")]
+    pub device: Device,
+    /// The category of the entity. (optional, default: None)
+    #[serde(rename = "ent_cat", skip_serializing_if = "Option::is_none")]
+    pub entity_category: Option<EntityCategory>,
+    /// Icon for the entity.
+    /// Any icon from [MaterialDesignIcons.com](https://materialdesignicons.com/). Prefix name with `mdi:`, ie `mdi:home`.
+    /// Note: Newer icons may not yet be available in the current Home Assistant release. You can check when an icon was added to MaterialDesignIcons.com at [MDI History](https://materialdesignicons.com/history).
+    #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Implies force_update of the current sensor state when a message is received on this topic. (optional)
+    #[serde(rename = "json_attr_t", skip_serializing_if = "Option::is_none")]
+    pub json_attributes_topic: Option<String>,
+    /// Defines a template to extract the JSON dictionary from messages received on the `json_attributes_topic`. (optional)
+    #[serde(rename = "json_attr_tpl", skip_serializing_if = "Option::is_none")]
+    pub json_attributes_template: Option<String>,
+    /// Used instead of `name` for automatic generation of `entity_id`.
+    #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
+    pub object_id: Option<String>,
+    /// An ID that uniquely identifies this sensor.
+    /// If two sensors have the same unique ID, Home Assistant will raise an exception.
+    #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
+    pub unique_id: Option<String>,
+    /// Defines how HA will check for entity availability.
     #[serde(flatten)]
-    pub common: MqttCommon,
-    #[serde(flatten)]
-    pub rw_entity: ReadWriteEntity,
+    pub availability: Availability,
+    /// Flag which defines if the entity should be enabled when first added.
+    #[serde(rename = "en", skip_serializing_if = "Option::is_none")]
+    pub enabled_by_default: Option<bool>,
+    /// The MQTT topic subscribed to receive sensor values.
+    /// If `device_class`, `state_class`, `unit_of_measurement` or `suggested_display_precision` is set, and a numeric value is expected, an empty value `''` will be ignored and will not update the state, a `'null'` value will set the sensor to an `unknown` state. The `device_class` can be `null`.
+    #[serde(rename = "stat_t")]
+    pub state_topic: String,
+    /// Defines a [template](https://www.home-assistant.io/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
+    /// If the template throws an error, the current state will be used instead.
+    #[serde(rename = "val_tpl", skip_serializing_if = "Option::is_none")]
+    pub value_template: Option<String>,
+    /// The MQTT topic to publish commands to change the number.
+    #[serde(rename = "cmd_t")]
+    pub command_topic: String,
+    /// Defines a template to generate the payload to send to command_topic.
+    #[serde(rename = "cmd_tpl")]
+    pub command_template: Option<String>,
+    /// Flag that defines if number works in optimistic mode. Default: `true` if no `state_topic` defined, else `false`.
+    #[serde(rename = "opt")]
+    pub optimistic: Option<bool>,
+    /// If the published message should have the retain flag on or not. (optional, default: `false`)
+    #[serde(rename = "ret")]
+    pub retain: Option<bool>,
     /// Sets the [class of the device](https://www.home-assistant.io/integrations/binary_sensor/#device-class), changing the device state and icon that is displayed on the frontend. The `device_class` can be `null`.
     #[serde(rename = "dev_cla", skip_serializing_if = "Option::is_none")]
     pub device_class: Option<NumberDeviceClass>,
-    /// If set, it defines the number of seconds after the sensor’s state expires, if it’s not updated.
-    /// After expiry, the sensor’s state becomes unavailable. Default the sensors state never expires.
-    /// (optional, default: 0)
-    #[serde(rename = "exp_aft", skip_serializing_if = "Option::is_none")]
-    pub expire_after: Option<u64>,
     /// The name of the Number. Can be set to `null` if only the device name is relevant.
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -207,44 +253,39 @@ mod tests {
     #[test]
     fn can_serialize_sensor() {
         let number = Number {
-            common: MqttCommon {
-                topic_prefix: Some("topic/prefix".to_string()),
-                origin: Origin {
-                    name: "application name".to_string(),
-                    sw_version: None,
-                    support_url: None,
-                },
-                device: Device {
-                    name: Some("device name".to_string()),
-                    identifiers: vec![],
-                    connections: vec![],
-                    configuration_url: None,
-                    manufacturer: None,
-                    model: None,
-                    suggested_area: None,
-                    sw_version: None,
-                    hw_version: None,
-                    via_device: None,
-                },
-                entity_category: None,
-                icon: None,
-                json_attributes_topic: None,
-                json_attributes_template: None,
-                object_id: Some("object-id".to_string()),
-                unique_id: Some("unique-id".to_string()),
-                availability: Availability::single_topic("~/availability"),
-                enabled_by_default: Some(true),
+            topic_prefix: Some("topic/prefix".to_string()),
+            origin: Origin {
+                name: "application name".to_string(),
+                sw_version: None,
+                support_url: None,
             },
-            rw_entity: ReadWriteEntity {
-                state_topic: "~/state".to_string(),
-                value_template: Some("{{ value }}".to_string()),
-                command_topic: "~/command".to_string(),
-                command_template: Some("{{ command_value }}".to_string()),
-                optimistic: Some(false),
-                retain: Some(true),
+            device: Device {
+                name: Some("device name".to_string()),
+                identifiers: vec![],
+                connections: vec![],
+                configuration_url: None,
+                manufacturer: None,
+                model: None,
+                suggested_area: None,
+                sw_version: None,
+                hw_version: None,
+                via_device: None,
             },
+            entity_category: None,
+            icon: None,
+            json_attributes_topic: None,
+            json_attributes_template: None,
+            object_id: Some("object-id".to_string()),
+            unique_id: Some("unique-id".to_string()),
+            availability: Availability::single_topic("~/availability").expire_after(60),
+            enabled_by_default: Some(true),
+            state_topic: "~/state".to_string(),
+            value_template: Some("{{ value }}".to_string()),
+            command_topic: "~/command".to_string(),
+            command_template: Some("{{ command_value }}".to_string()),
+            optimistic: Some(false),
+            retain: Some(true),
             device_class: Some(NumberDeviceClass::Battery),
-            expire_after: Some(60),
             name: Some("number name".to_string()),
             min: Some(1.0),
             max: Some(100.0),
