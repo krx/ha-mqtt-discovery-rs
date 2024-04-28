@@ -1,13 +1,16 @@
+#![recursion_limit = "256"]
+
 use std::fmt::Display;
 
 use anyhow::{anyhow, Result};
-use mqtt::{binary_sensor::BinarySensor, number::Number, sensor::Sensor};
+use mqtt::{binary_sensor::BinarySensor, climate::Climate, number::Number, sensor::Sensor};
 use rumqttc::v5::{
     mqttbytes::{v5::PublishProperties, QoS::AtLeastOnce},
     AsyncClient,
 };
 use serde::Serialize;
 
+pub use rumqttc::v5;
 pub mod mqtt;
 
 const ONE_WEEK_SECONDS: u32 = 60 * 60 * 24 * 7;
@@ -70,6 +73,10 @@ impl HomeAssistantMqtt {
         self.publish(Entity::BinarySensor, &binary_sensor).await
     }
 
+    pub async fn publish_climate(&self, climate: Climate) -> Result<()> {
+        self.publish(Entity::Climate, &climate).await
+    }
+
     pub async fn publish_number(&self, number: Number) -> Result<()> {
         self.publish(Entity::Number, &number).await
     }
@@ -101,6 +108,7 @@ enum Entity {
     BinarySensor,
     Number,
     Sensor,
+    Climate,
 }
 
 impl Display for Entity {
@@ -109,6 +117,7 @@ impl Display for Entity {
             Entity::Sensor => "sensor",
             Entity::Number => "number",
             Entity::BinarySensor => "binary_sensor",
+            Entity::Climate => "climate",
         };
         write!(f, "{name}")
     }

@@ -11,7 +11,7 @@ use super::{
 pub struct Sensor {
     /// Replaces `~` with this value in any MQTT topic attribute.
     /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
-    #[serde(rename = "~")]
+    #[serde(rename = "~", skip_serializing_if = "Option::is_none")]
     pub topic_prefix: Option<String>,
     /// It is encouraged to add additional information about the origin that supplies MQTT entities via MQTT discovery by adding the origin option (can be abbreviated to o) to the discovery payload. Note that these options also support abbreviations. Information of the origin will be logged to the core event log when an item is discovered or updated.
     #[serde(rename = "o")]

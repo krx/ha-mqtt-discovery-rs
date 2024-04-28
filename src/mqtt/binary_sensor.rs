@@ -9,7 +9,7 @@ use super::common::{Availability, Device, EntityCategory, Origin};
 pub struct BinarySensor {
     /// Replaces `~` with this value in any MQTT topic attribute.
     /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
-    #[serde(rename = "~")]
+    #[serde(rename = "~", skip_serializing_if = "Option::is_none")]
     pub topic_prefix: Option<String>,
     #[serde(rename = "o")]
     pub origin: Origin,
