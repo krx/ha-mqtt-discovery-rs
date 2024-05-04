@@ -21,21 +21,8 @@ use rumqttc::v5::{
 };
 use serde_json::{json, Value};
 use std::time::Duration;
-use testcontainers::{clients, core::WaitFor, Container, GenericImage};
+use testcontainers_modules::{mosquitto, testcontainers::runners::AsyncRunner};
 use tokio::task;
-
-fn start_mosquitto_container(docker: &clients::Cli) -> Container<'_, GenericImage> {
-    let image = GenericImage::new("eclipse-mosquitto", "latest")
-        .with_exposed_port(1883)
-        .with_volume(
-            "./tests/resources/mosquitto.conf",
-            "/mosquitto/config/mosquitto.conf",
-        )
-        .with_wait_for(WaitFor::message_on_stderr(
-            "Opening ipv4 listen socket on port 1883.",
-        ));
-    docker.run(image)
-}
 
 fn origin() -> Origin {
     Origin::new("Integration test")
@@ -59,14 +46,13 @@ fn device() -> Device {
 
 async fn do_with_mosquitto(callback: fn(AsyncClient) -> ()) -> (Publish, Value) {
     // start a mosquitto container
-    let docker = clients::Cli::default();
-    let mosquitto_container = start_mosquitto_container(&docker);
+    let mosquitto_container = mosquitto::Mosquitto.start().await;
 
     // open a client to communicate with mosquitto container
     let mqtt_options = MqttOptions::new(
         "test",
         "127.0.0.1",
-        mosquitto_container.get_host_port_ipv4(1883),
+        mosquitto_container.get_host_port_ipv4(1883).await,
     );
     let (client, mut eventloop) = AsyncClient::new(mqtt_options, 10);
 
