@@ -1,33 +1,33 @@
 use super::common::{Availability, Device, EntityCategory, Origin};
 use serde_derive::Serialize;
 
-use super::device_classes::NumberDeviceClass;
-
 use super::common::Qos;
 
-use super::units::Unit;
-
 /// ---
-/// title: "MQTT Number"
-/// description: "Instructions on how to interact with a device exposing a Number through MQTT from within Home Assistant."
+/// title: "MQTT Select"
+/// description: "Instructions on how to interact with a device exposing a Select through MQTT from within Home Assistant."
 /// ha_category:
-///   - Number
-/// ha_release: 2021.2
+///   - Select
+/// ha_release: 2021.7
 /// ha_iot_class: Configurable
 /// ha_domain: mqtt
 /// ---
 ///
-/// The `mqtt` Number platform allows you to integrate devices that might expose configuration options through MQTT into Home Assistant as a Number. Every time a message under the `topic` in the configuration is received, the number entity will be updated in Home Assistant and vice-versa, keeping the device and Home Assistant in-sync.
+/// The `mqtt` Select platform allows you to integrate devices that might expose configuration options through MQTT into Home Assistant as a Select. Every time a message under the `topic` in the configuration is received, the select entity will be updated in Home Assistant and vice-versa, keeping the device and Home Assistant in sync.
 ///
 /// ## Configuration
 ///
-/// To enable MQTT Number in your installation, add the following to your `configuration.yaml` file:
+/// To enable MQTT Select in your installation, add the following to your `configuration.yaml` file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
 /// mqtt:
-///   - number:
-///       command_topic: my-device/threshold
+///   - select:
+///       command_topic: topic
+///       name: "Test Select"
+///       options:
+///         - "Option 1"
+///         - "Option 2"
 /// ```
 ///
 /// {% configuration %}
@@ -50,6 +50,10 @@ use super::units::Unit;
 ///       description: An MQTT topic subscribed to receive availability (online/offline) updates.
 ///       required: true
 ///       type: string
+///     value_template:
+///       description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract device's availability from the `topic`. To determine the devices's availability result of this template will be compared to `payload_available` and `payload_not_available`."
+///       required: false
+///       type: template
 /// availability_topic:
 ///   description: The MQTT topic subscribed to receive availability (online/offline) updates. Must not be used together with `availability`.
 ///   required: false
@@ -59,16 +63,20 @@ use super::units::Unit;
 ///    required: false
 ///    type: string
 ///    default: latest
+/// availability_template:
+///   description: "Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract device's availability from the `availability_topic`. To determine the devices's availability result of this template will be compared to `payload_available` and `payload_not_available`."
+///   required: false
+///   type: template
 /// command_template:
 ///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`.
 ///   required: false
 ///   type: template
 /// command_topic:
-///   description: The MQTT topic to publish commands to change the number.
+///   description: The MQTT topic to publish commands to change the selected option.
 ///   required: true
 ///   type: string
 /// device:
-///   description: "Information about the device this Number is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/en/device_registry_index.html). Only works when [`unique_id`](#unique_id) is set. At least one of identifiers or connections must be present to identify the device."
+///   description: "Information about the device this Select is a part of to tie it into the [device registry](https://developers.home-assistant.io/docs/en/device_registry_index.html). Only works when [`unique_id`](#unique_id) is set. At least one of identifiers or connections must be present to identify the device."
 ///   required: false
 ///   type: map
 ///   keys:
@@ -116,10 +124,6 @@ use super::units::Unit;
 ///       description: 'Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device. This is used to show device topology in Home Assistant.'
 ///       required: false
 ///       type: string
-/// device_class:
-///   description: The [type/class](/integrations/number/#device-class) of the number. The `device_class` can be `null`.
-///   required: false
-///   type: device_class
 /// enabled_by_default:
 ///   description: Flag which defines if the entity should be enabled when first added.
 ///   required: false
@@ -143,26 +147,11 @@ use super::units::Unit;
 ///   required: false
 ///   type: template
 /// json_attributes_topic:
-///   description: The MQTT topic subscribed to receive a JSON dictionary payload and then set as number attributes. Implies `force_update` of the current number state when a message is received on this topic.
+///   description: The MQTT topic subscribed to receive a JSON dictionary payload and then set as entity attributes. Implies `force_update` of the current select state when a message is received on this topic.
 ///   required: false
 ///   type: string
-/// min:
-///   description: Minimum value.
-///   required: false
-///   type: float
-///   default: 1
-/// max:
-///   description: Maximum value.
-///   required: false
-///   type: float
-///   default: 100
-/// mode:
-///   description: Control how the number should be displayed in the UI. Can be set to `box` or `slider` to force a display mode.
-///   required: false
-///   type: string
-///   default: '"auto"'
 /// name:
-///   description: The name of the Number. Can be set to `null` if only the device name is relevant.
+///   description: The name of the Select. Can be set to `null` if only the device name is relevant.
 ///   required: false
 ///   type: string
 /// object_id:
@@ -170,15 +159,14 @@ use super::units::Unit;
 ///   required: false
 ///   type: string
 /// optimistic:
-///   description: Flag that defines if number works in optimistic mode.
+///   description: Flag that defines if the select works in optimistic mode.
 ///   required: false
 ///   type: boolean
 ///   default: "`true` if no `state_topic` defined, else `false`."
-/// payload_reset:
-///   description: A special payload that resets the state to `unknown` when received on the `state_topic`.
-///   required: false
-///   type: string
-///   default: '"None"'
+/// options:
+///   description: List of options that can be selected. An empty list or a list with a single item is allowed.
+///   required: true
+///   type: list
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -190,20 +178,11 @@ use super::units::Unit;
 ///   type: boolean
 ///   default: false
 /// state_topic:
-///   description: The MQTT topic subscribed to receive number values.
+///   description: The MQTT topic subscribed to receive update of the selected option.
 ///   required: false
 ///   type: string
-/// step:
-///   description: Step value. Smallest value `0.001`.
-///   required: false
-///   type: float
-///   default: 1
 /// unique_id:
-///   description: An ID that uniquely identifies this Number. If two Numbers have the same unique ID Home Assistant will raise an exception.
-///   required: false
-///   type: string
-/// unit_of_measurement:
-///   description: Defines the unit of measurement of the sensor, if any. The `unit_of_measurement` can be `null`.
+///   description: An ID that uniquely identifies this Select. If two Selects have the same unique ID Home Assistant will raise an exception.
 ///   required: false
 ///   type: string
 /// value_template:
@@ -219,7 +198,7 @@ use super::units::Unit;
 /// </div>
 ///
 #[derive(Clone, Debug, PartialEq, Serialize, Default)]
-pub struct Number {
+pub struct Select {
     /// Replaces `~` with this value in any MQTT topic attribute.
     /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
     #[serde(rename = "~", skip_serializing_if = "Option::is_none")]
@@ -245,13 +224,9 @@ pub struct Number {
     #[serde(rename = "cmd_tpl", skip_serializing_if = "Option::is_none")]
     pub command_template: Option<String>,
 
-    /// The MQTT topic to publish commands to change the number.
+    /// The MQTT topic to publish commands to change the selected option.
     #[serde(rename = "cmd_t")]
     pub command_topic: String,
-
-    /// The [type/class](/integrations/number/#device-class) of the number. The `device_class` can be `null`.
-    #[serde(rename = "dev_cla", skip_serializing_if = "Option::is_none")]
-    pub device_class: Option<NumberDeviceClass>,
 
     /// Flag which defines if the entity should be enabled when first added.
     #[serde(rename = "en", skip_serializing_if = "Option::is_none")]
@@ -269,23 +244,11 @@ pub struct Number {
     #[serde(rename = "json_attr_tpl", skip_serializing_if = "Option::is_none")]
     pub json_attributes_template: Option<String>,
 
-    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as number attributes. Implies `force_update` of the current number state when a message is received on this topic.
+    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as entity attributes. Implies `force_update` of the current select state when a message is received on this topic.
     #[serde(rename = "json_attr_t", skip_serializing_if = "Option::is_none")]
     pub json_attributes_topic: Option<String>,
 
-    /// Minimum value.
-    #[serde(rename = "min", skip_serializing_if = "Option::is_none")]
-    pub min: Option<f32>,
-
-    /// Maximum value.
-    #[serde(rename = "max", skip_serializing_if = "Option::is_none")]
-    pub max: Option<f32>,
-
-    /// Control how the number should be displayed in the UI. Can be set to `box` or `slider` to force a display mode.
-    #[serde(rename = "mode", skip_serializing_if = "Option::is_none")]
-    pub mode: Option<String>,
-
-    /// The name of the Number. Can be set to `null` if only the device name is relevant.
+    /// The name of the Select. Can be set to `null` if only the device name is relevant.
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
@@ -293,13 +256,9 @@ pub struct Number {
     #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
     pub object_id: Option<String>,
 
-    /// Flag that defines if number works in optimistic mode.
+    /// Flag that defines if the select works in optimistic mode.
     #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
     pub optimistic: Option<bool>,
-
-    /// A special payload that resets the state to `unknown` when received on the `state_topic`.
-    #[serde(rename = "pl_rst", skip_serializing_if = "Option::is_none")]
-    pub payload_reset: Option<String>,
 
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
@@ -309,28 +268,20 @@ pub struct Number {
     #[serde(rename = "ret", skip_serializing_if = "Option::is_none")]
     pub retain: Option<bool>,
 
-    /// The MQTT topic subscribed to receive number values.
+    /// The MQTT topic subscribed to receive update of the selected option.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
-    /// Step value. Smallest value `0.001`.
-    #[serde(rename = "step", skip_serializing_if = "Option::is_none")]
-    pub step: Option<f32>,
-
-    /// An ID that uniquely identifies this Number. If two Numbers have the same unique ID Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this Select. If two Selects have the same unique ID Home Assistant will raise an exception.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
-
-    /// Defines the unit of measurement of the sensor, if any. The `unit_of_measurement` can be `null`.
-    #[serde(rename = "unit_of_meas", skip_serializing_if = "Option::is_none")]
-    pub unit_of_measurement: Option<Unit>,
 
     /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the value.
     #[serde(rename = "val_tpl", skip_serializing_if = "Option::is_none")]
     pub value_template: Option<String>,
 }
 
-impl Number {
+impl Select {
     /// Replaces `~` with this value in any MQTT topic attribute.
     /// [See Home Assistant documentation](https://www.home-assistant.io/integrations/mqtt/#using-abbreviations-and-base-topic)
     pub fn topic_prefix<S: Into<String>>(mut self, topic_prefix: S) -> Self {
@@ -368,15 +319,9 @@ impl Number {
         self
     }
 
-    /// The MQTT topic to publish commands to change the number.
+    /// The MQTT topic to publish commands to change the selected option.
     pub fn command_topic<T: Into<String>>(mut self, command_topic: T) -> Self {
         self.command_topic = command_topic.into();
-        self
-    }
-
-    /// The [type/class](/integrations/number/#device-class) of the number. The `device_class` can be `null`.
-    pub fn device_class(mut self, device_class: NumberDeviceClass) -> Self {
-        self.device_class = Some(device_class);
         self
     }
 
@@ -407,31 +352,13 @@ impl Number {
         self
     }
 
-    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as number attributes. Implies `force_update` of the current number state when a message is received on this topic.
+    /// The MQTT topic subscribed to receive a JSON dictionary payload and then set as entity attributes. Implies `force_update` of the current select state when a message is received on this topic.
     pub fn json_attributes_topic<T: Into<String>>(mut self, json_attributes_topic: T) -> Self {
         self.json_attributes_topic = Some(json_attributes_topic.into());
         self
     }
 
-    /// Minimum value.
-    pub fn min(mut self, min: f32) -> Self {
-        self.min = Some(min);
-        self
-    }
-
-    /// Maximum value.
-    pub fn max(mut self, max: f32) -> Self {
-        self.max = Some(max);
-        self
-    }
-
-    /// Control how the number should be displayed in the UI. Can be set to `box` or `slider` to force a display mode.
-    pub fn mode<T: Into<String>>(mut self, mode: T) -> Self {
-        self.mode = Some(mode.into());
-        self
-    }
-
-    /// The name of the Number. Can be set to `null` if only the device name is relevant.
+    /// The name of the Select. Can be set to `null` if only the device name is relevant.
     pub fn name<T: Into<String>>(mut self, name: T) -> Self {
         self.name = Some(name.into());
         self
@@ -443,15 +370,9 @@ impl Number {
         self
     }
 
-    /// Flag that defines if number works in optimistic mode.
+    /// Flag that defines if the select works in optimistic mode.
     pub fn optimistic(mut self, optimistic: bool) -> Self {
         self.optimistic = Some(optimistic);
-        self
-    }
-
-    /// A special payload that resets the state to `unknown` when received on the `state_topic`.
-    pub fn payload_reset<T: Into<String>>(mut self, payload_reset: T) -> Self {
-        self.payload_reset = Some(payload_reset.into());
         self
     }
 
@@ -467,27 +388,15 @@ impl Number {
         self
     }
 
-    /// The MQTT topic subscribed to receive number values.
+    /// The MQTT topic subscribed to receive update of the selected option.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self
     }
 
-    /// Step value. Smallest value `0.001`.
-    pub fn step(mut self, step: f32) -> Self {
-        self.step = Some(step);
-        self
-    }
-
-    /// An ID that uniquely identifies this Number. If two Numbers have the same unique ID Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this Select. If two Selects have the same unique ID Home Assistant will raise an exception.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
-        self
-    }
-
-    /// Defines the unit of measurement of the sensor, if any. The `unit_of_measurement` can be `null`.
-    pub fn unit_of_measurement<T: Into<Unit>>(mut self, unit_of_measurement: T) -> Self {
-        self.unit_of_measurement = Some(unit_of_measurement.into());
         self
     }
 

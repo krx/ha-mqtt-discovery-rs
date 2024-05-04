@@ -1,10 +1,11 @@
 use assert_json_diff::assert_json_eq;
 use hass_mqtt_autodiscovery::{
     mqtt::{
-        binary_sensor::{BinarySensor, BinarySensorDeviceClass},
+        binary_sensor::BinarySensor,
         common::{Availability, Device, DeviceConnection, Origin, SensorStateClass},
-        number::{DisplayMode, Number, NumberDeviceClass},
-        sensor::{Sensor, SensorDeviceClass},
+        device_classes::{BinarySensorDeviceClass, NumberDeviceClass, SensorDeviceClass},
+        number::Number,
+        sensor::Sensor,
         units::{TempUnit::Celsius, Unit},
     },
     HomeAssistantMqtt,
@@ -36,30 +37,24 @@ fn start_mosquitto_container(docker: &clients::Cli) -> Container<'_, GenericImag
     docker.run(image)
 }
 
-fn some_string(s: &str) -> Option<String> {
-    Some(s.to_string())
-}
 fn origin() -> Origin {
-    Origin {
-        name: "Integration test".to_string(),
-        sw_version: some_string("0.0.1"),
-        support_url: some_string("https://www.github.com"),
-    }
+    Origin::new("Integration test")
+        .with_sw_version("0.0.1")
+        .with_support_url("https://www.github.com")
 }
 
 fn device() -> Device {
-    Device {
-        name: some_string("Barometer"),
-        identifiers: vec!["barometer-09AF".to_string()],
-        connections: vec![DeviceConnection::mac("09:AF:A4:54:F0:9D")],
-        configuration_url: some_string("https://barometer.home/admin"),
-        manufacturer: some_string("Awesome corp"),
-        model: some_string("Awesome model"),
-        suggested_area: some_string("kitchen"),
-        sw_version: some_string("0.1a"),
-        hw_version: some_string("rev B"),
-        via_device: some_string("manufacturer cloud"),
-    }
+    Device::default()
+        .name("Barometer")
+        .add_identifier("barometer-09AF")
+        .add_connection(DeviceConnection::mac("09:AF:A4:54:F0:9D"))
+        .configuration_url("https://barometer.home/admin")
+        .manufacturer("Awesome corp")
+        .model("Awesome model")
+        .suggested_area("kitchen")
+        .sw_version("0.1a")
+        .hw_version("rev B")
+        .via_device("manufacturer cloud")
 }
 
 async fn do_with_mosquitto(callback: fn(AsyncClient) -> ()) -> (Publish, Value) {
@@ -116,27 +111,25 @@ async fn can_publish_a_binary_sensor_configuration() {
         let registry = HomeAssistantMqtt::new(client, "homeassistant/");
         tokio::spawn(async move {
             registry
-                .publish_binary_sensor(BinarySensor {
-                    topic_prefix: some_string("temperature_devices/barometer-09AF"),
-                    origin: origin(),
-                    device: device(),
-                    entity_category: None,
-                    icon: None,
-                    json_attributes_topic: None,
-                    json_attributes_template: None,
-                    object_id: some_string("barometer-09AF"),
-                    unique_id: some_string("barometer-09AF_state"),
-                    availability: Availability::single_topic("~/availability").expire_after(120),
-                    enabled_by_default: None,
-                    state_topic: "~/state".to_string(),
-                    value_template: some_string("{{ json_value.state }}"),
-                    device_class: Some(BinarySensorDeviceClass::Door),
-                    force_update: Some(true),
-                    name: some_string("Barometer state"),
-                    off_delay: Some(10),
-                    payload_off: some_string("Off"),
-                    payload_on: some_string("On"),
-                })
+                .publish_binary_sensor(
+                    BinarySensor::default()
+                        .topic_prefix("temperature_devices/barometer-09AF")
+                        .origin(origin())
+                        .device(device())
+                        .object_id("barometer-09AF")
+                        .unique_id("barometer-09AF_state")
+                        .availability(
+                            Availability::single_topic("~/availability").expire_after(120),
+                        )
+                        .state_topic("~/state")
+                        .value_template("{{ json_value.state }}")
+                        .device_class(BinarySensorDeviceClass::Door)
+                        .force_update(true)
+                        .name("Barometer state")
+                        .off_delay(10)
+                        .payload_off("Off")
+                        .payload_on("On"),
+                )
                 .await
                 .expect("message to be published");
         });
@@ -204,33 +197,31 @@ async fn can_publish_a_number_configuration() {
         let registry = HomeAssistantMqtt::new(client, "homeassistant/");
         tokio::spawn(async move {
             registry
-                .publish_number(Number {
-                    topic_prefix: some_string("temperature_devices/barometer-09AF"),
-                    origin: origin(),
-                    device: device(),
-                    entity_category: None,
-                    icon: None,
-                    json_attributes_topic: None,
-                    json_attributes_template: None,
-                    object_id: some_string("barometer-09AF"),
-                    unique_id: some_string("barometer-09AF_temperature_drift"),
-                    availability: Availability::single_topic("~/availability").expire_after(120),
-                    enabled_by_default: None,
-                    state_topic: "~/state".to_string(),
-                    value_template: some_string("{{ json_value.temperature }}"),
-                    command_topic: "~/command".to_string(),
-                    command_template: Some("{{ json_value.command }}".to_string()),
-                    optimistic: Some(false),
-                    retain: Some(true),
-                    device_class: Some(NumberDeviceClass::Temperature),
-                    name: some_string("Temperature drift"),
-                    min: Some(-10.0),
-                    max: Some(10.0),
-                    mode: Some(DisplayMode::Slider),
-                    payload_reset: Some("NaN".to_string()),
-                    step: Some(0.1),
-                    unit_of_measurement: Some(Unit::Temperature(Celsius)),
-                })
+                .publish_number(
+                    Number::default()
+                        .topic_prefix("temperature_devices/barometer-09AF")
+                        .origin(origin())
+                        .device(device())
+                        .object_id("barometer-09AF")
+                        .unique_id("barometer-09AF_temperature_drift")
+                        .availability(
+                            Availability::single_topic("~/availability").expire_after(120),
+                        )
+                        .state_topic("~/state")
+                        .value_template("{{ json_value.temperature }}")
+                        .command_topic("~/command".to_string())
+                        .command_template("{{ json_value.command }}".to_string())
+                        .optimistic(false)
+                        .retain(true)
+                        .device_class(NumberDeviceClass::Temperature)
+                        .name("Temperature drift")
+                        .min(-10.0)
+                        .max(10.0)
+                        .mode("slider")
+                        .payload_reset("NaN")
+                        .step(0.1)
+                        .unit_of_measurement(Unit::Temperature(Celsius)),
+                )
                 .await
                 .expect("message to be published");
         });
@@ -304,28 +295,25 @@ async fn can_publish_a_sensor_configuration() {
         let registry = HomeAssistantMqtt::new(client, "homeassistant/");
         tokio::spawn(async move {
             registry
-                .publish_sensor(Sensor {
-                    topic_prefix: some_string("temperature_devices/barometer-09AF"),
-                    origin: origin(),
-                    device: device(),
-                    entity_category: None,
-                    icon: None,
-                    json_attributes_topic: None,
-                    json_attributes_template: None,
-                    object_id: some_string("barometer-09AF"),
-                    unique_id: some_string("barometer-09AF_temperature"),
-                    availability: Availability::single_topic("~/availability").expire_after(120),
-                    enabled_by_default: None,
-                    state_topic: "~/state".to_string(),
-                    value_template: some_string("{{ json_value.temperature }}"),
-                    device_class: Some(SensorDeviceClass::Temperature),
-                    force_update: Some(true),
-                    last_reset_value_template: None,
-                    name: some_string("Temperature"),
-                    suggested_display_precision: Some(1),
-                    state_class: Some(SensorStateClass::Measurement),
-                    unit_of_measurement: Some(Unit::Temperature(Celsius)),
-                })
+                .publish_sensor(
+                    Sensor::default()
+                        .topic_prefix("temperature_devices/barometer-09AF")
+                        .origin(origin())
+                        .device(device())
+                        .object_id("barometer-09AF")
+                        .unique_id("barometer-09AF_temperature")
+                        .availability(
+                            Availability::single_topic("~/availability").expire_after(120),
+                        )
+                        .state_topic("~/state")
+                        .value_template("{{ json_value.temperature }}")
+                        .device_class(SensorDeviceClass::Temperature)
+                        .force_update(true)
+                        .name("Temperature")
+                        .suggested_display_precision(1)
+                        .state_class(SensorStateClass::Measurement)
+                        .unit_of_measurement(Unit::Temperature(Celsius)),
+                )
                 .await
                 .expect("message to be published");
         });

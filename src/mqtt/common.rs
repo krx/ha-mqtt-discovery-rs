@@ -333,6 +333,23 @@ impl AvailabilityCheck {
     }
 }
 
+/// The maximum QoS level to be used when receiving and publishing messages.
+#[allow(dead_code)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub enum Qos {
+    /// At most once (QoS 0)
+    #[serde(rename = "0")]
+    AtMostOnce,
+
+    /// At least once (QoS 1)
+    #[serde(rename = "1")]
+    AtLeastOnce,
+
+    /// Exactly once (QoS 2)
+    #[serde(rename = "2")]
+    ExactlyOnce,
+}
+
 #[cfg(test)]
 mod tests {
     use assert_json_diff::assert_json_eq;
