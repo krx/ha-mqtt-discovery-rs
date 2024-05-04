@@ -7,3 +7,6 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
+  homeassistant-docs:
+    url: github:home-assistant/home-assistant.io/current
+    flake: false

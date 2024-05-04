@@ -1,0 +1,14 @@
+use serde_derive::Serialize;
+
+{{#each this}}
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub enum {{ toPascalCase name }}DeviceClass {
+    {{#each values}}
+    /// {{{ comment description }}}
+    #[serde(rename = "{{ value }}")]
+    {{ toPascalCase value }},
+
+    {{/each}}
+}
+
+{{/each}}

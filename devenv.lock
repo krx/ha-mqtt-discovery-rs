@@ -93,6 +93,23 @@
         "type": "github"
       }
     },
+    "homeassistant-docs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1714749537,
+        "owner": "home-assistant",
+        "repo": "home-assistant.io",
+        "rev": "cc90aea4eb580b80737c0875f046079ea4a7179e",
+        "treeHash": "c11a90859620251404725f530dfb7d4fe5837d56",
+        "type": "github"
+      },
+      "original": {
+        "owner": "home-assistant",
+        "ref": "current",
+        "repo": "home-assistant.io",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1713805509,
@@ -153,6 +170,7 @@
       "inputs": {
         "devenv": "devenv",
         "fenix": "fenix",
+        "homeassistant-docs": "homeassistant-docs",
         "nixpkgs": "nixpkgs",
         "pre-commit-hooks": "pre-commit-hooks"
       }

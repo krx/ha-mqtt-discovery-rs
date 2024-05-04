@@ -1,0 +1,7 @@
+pub mod common;
+pub mod device_classes;
+pub mod units;
+
+{{#each this}}
+pub mod {{ . }};
+{{/each}}
