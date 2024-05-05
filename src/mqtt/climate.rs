@@ -557,6 +557,10 @@ pub struct Climate {
     #[serde(rename = "fan_mode_stat_t", skip_serializing_if = "Option::is_none")]
     pub fan_mode_state_topic: Option<String>,
 
+    /// A list of supported fan modes.
+    #[serde(rename = "fan_modes", skip_serializing_if = "Option::is_none")]
+    pub fan_modes: Option<Vec<String>>,
+
     /// Set the initial target temperature. The default value depends on the temperature unit and will be 21° or 69.8°F.
     #[serde(rename = "init", skip_serializing_if = "Option::is_none")]
     pub initial: Option<Decimal>,
@@ -604,6 +608,10 @@ pub struct Climate {
     /// The MQTT topic to subscribe for changes of the HVAC operation mode. If this is not set, the operation mode works in optimistic mode (see below).
     #[serde(rename = "mode_stat_t", skip_serializing_if = "Option::is_none")]
     pub mode_state_topic: Option<String>,
+
+    /// A list of supported modes. Needs to be a subset of the default values.
+    #[serde(rename = "modes", skip_serializing_if = "Option::is_none")]
+    pub modes: Option<Vec<String>>,
 
     /// The name of the HVAC. Can be set to `null` if only the device name is relevant.
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
@@ -697,6 +705,10 @@ pub struct Climate {
     /// The MQTT topic to subscribe for changes of the HVAC swing mode. If this is not set, the swing mode works in optimistic mode (see below).
     #[serde(rename = "swing_mode_stat_t", skip_serializing_if = "Option::is_none")]
     pub swing_mode_state_topic: Option<String>,
+
+    /// A list of supported swing modes.
+    #[serde(rename = "swing_modes", skip_serializing_if = "Option::is_none")]
+    pub swing_modes: Option<Vec<String>>,
 
     /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `target_humidity_command_topic`.
     #[serde(rename = "hum_cmd_tpl", skip_serializing_if = "Option::is_none")]
@@ -895,6 +907,12 @@ impl Climate {
         self
     }
 
+    /// A list of supported fan modes.
+    pub fn fan_modes<T: Into<String>>(mut self, fan_modes: Vec<T>) -> Self {
+        self.fan_modes = Some(fan_modes.into_iter().map(|v| v.into()).collect());
+        self
+    }
+
     /// Set the initial target temperature. The default value depends on the temperature unit and will be 21° or 69.8°F.
     pub fn initial(mut self, initial: Decimal) -> Self {
         self.initial = Some(initial);
@@ -967,6 +985,12 @@ impl Climate {
     /// The MQTT topic to subscribe for changes of the HVAC operation mode. If this is not set, the operation mode works in optimistic mode (see below).
     pub fn mode_state_topic<T: Into<String>>(mut self, mode_state_topic: T) -> Self {
         self.mode_state_topic = Some(mode_state_topic.into());
+        self
+    }
+
+    /// A list of supported modes. Needs to be a subset of the default values.
+    pub fn modes<T: Into<String>>(mut self, modes: Vec<T>) -> Self {
+        self.modes = Some(modes.into_iter().map(|v| v.into()).collect());
         self
     }
 
@@ -1111,6 +1135,12 @@ impl Climate {
     /// The MQTT topic to subscribe for changes of the HVAC swing mode. If this is not set, the swing mode works in optimistic mode (see below).
     pub fn swing_mode_state_topic<T: Into<String>>(mut self, swing_mode_state_topic: T) -> Self {
         self.swing_mode_state_topic = Some(swing_mode_state_topic.into());
+        self
+    }
+
+    /// A list of supported swing modes.
+    pub fn swing_modes<T: Into<String>>(mut self, swing_modes: Vec<T>) -> Self {
+        self.swing_modes = Some(swing_modes.into_iter().map(|v| v.into()).collect());
         self
     }
 

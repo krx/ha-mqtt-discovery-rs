@@ -332,6 +332,10 @@ pub struct Siren {
     #[serde(rename = "ent_cat", skip_serializing_if = "Option::is_none")]
     pub entity_category: Option<EntityCategory>,
 
+    /// A list of available tones the siren supports. When configured, this enables the support for setting a `tone` and enables the `tone` state attribute.
+    #[serde(rename = "av_tones", skip_serializing_if = "Option::is_none")]
+    pub available_tones: Option<Vec<String>>,
+
     /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on service parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
     #[serde(rename = "cmd_tpl", skip_serializing_if = "Option::is_none")]
     pub command_template: Option<String>,
@@ -459,6 +463,12 @@ impl Siren {
     /// Defines how HA will check for entity availability.
     pub fn availability(mut self, availability: Availability) -> Self {
         self.availability = availability;
+        self
+    }
+
+    /// A list of available tones the siren supports. When configured, this enables the support for setting a `tone` and enables the `tone` state attribute.
+    pub fn available_tones<T: Into<String>>(mut self, available_tones: Vec<T>) -> Self {
+        self.available_tones = Some(available_tones.into_iter().map(|v| v.into()).collect());
         self
     }
 

@@ -292,6 +292,10 @@ pub struct Event {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// A list of valid `event_type` strings.
+    #[serde(rename = "evt_typ")]
+    pub event_types: Vec<String>,
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
@@ -384,6 +388,12 @@ impl Event {
     /// The encoding of the published messages.
     pub fn encoding<T: Into<String>>(mut self, encoding: T) -> Self {
         self.encoding = Some(encoding.into());
+        self
+    }
+
+    /// A list of valid `event_type` strings.
+    pub fn event_types<T: Into<String>>(mut self, event_types: Vec<T>) -> Self {
+        self.event_types = event_types.into_iter().map(|v| v.into()).collect();
         self
     }
 

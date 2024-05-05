@@ -470,6 +470,10 @@ pub struct AlarmControlPanel {
     #[serde(rename = "stat_t")]
     pub state_topic: String,
 
+    /// A list of features that the alarm control panel supports. The available list options are `arm_home`, `arm_away`, `arm_night`, `arm_vacation`, `arm_custom_bypass`, and `trigger`.
+    #[serde(rename = "sup_feat", skip_serializing_if = "Option::is_none")]
+    pub supported_features: Option<Vec<String>>,
+
     /// An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
@@ -664,6 +668,12 @@ impl AlarmControlPanel {
     /// The MQTT topic subscribed to receive state updates.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = state_topic.into();
+        self
+    }
+
+    /// A list of features that the alarm control panel supports. The available list options are `arm_home`, `arm_away`, `arm_night`, `arm_vacation`, `arm_custom_bypass`, and `trigger`.
+    pub fn supported_features<T: Into<String>>(mut self, supported_features: Vec<T>) -> Self {
+        self.supported_features = Some(supported_features.into_iter().map(|v| v.into()).collect());
         self
     }
 

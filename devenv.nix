@@ -24,4 +24,9 @@
     cp $(grep -lri '^###* Device Class' ${inputs.homeassistant-docs}/source/_integrations/) $DEVENV_ROOT/generator/input/device_classes/
     chmod -R +w generator/input/
   '';
+
+  scripts.generate-types.exec = ''
+    bun run generator/src/index.ts
+    find src -type f -exec rustfmt --edition 2021 {} \+
+  '';
 }

@@ -1,16 +1,15 @@
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import YAML from "yaml";
-import Handlebars from "handlebars";
 import { toPascalCase } from "./strings";
 
 const IGNORED_ATTRS = [
+  "availability",
   "availability_mode",
   "availability_template",
   "availability_topic",
   "expire_after",
   "device",
   "entity_category",
-  "",
 ];
 
 type FieldAttributes = {
@@ -55,7 +54,6 @@ export function generateMqttEntityModel(
   try {
     const modelDescriptor = YAML.parse(modelDescriptorYaml!![1]);
     const entries = Object.entries(modelDescriptor)
-      .filter(([name, attrs]) => !["list", "map"].includes(attrs.type))
       .filter(([name, attrs]) => !IGNORED_ATTRS.includes(name));
     for (const [name, attrs] of entries) {
       appendRustType(name, attrs as FieldAttributes);
@@ -96,6 +94,13 @@ function appendRustType(name: string, attrs: FieldAttributes) {
     case "boolean":
       attrs.rustType = "bool";
       break;
+    case "list":
+        if (!attrs.keys) {
+          attrs.rustType = "String";
+          attrs.iterable = true;
+          attrs.useInto = true;
+        }
+        break;
     default:
       if (attrs.type.includes("list")) {
         attrs.rustType = "String";

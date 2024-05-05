@@ -404,6 +404,10 @@ pub struct WaterHeater {
     #[serde(rename = "mode_stat_t", skip_serializing_if = "Option::is_none")]
     pub mode_state_topic: Option<String>,
 
+    /// A list of supported modes. Needs to be a subset of the default values.
+    #[serde(rename = "modes", skip_serializing_if = "Option::is_none")]
+    pub modes: Option<Vec<String>>,
+
     /// The name of the water heater. Can be set to `null` if only the device name is relevant.
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -609,6 +613,12 @@ impl WaterHeater {
     /// The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below).
     pub fn mode_state_topic<T: Into<String>>(mut self, mode_state_topic: T) -> Self {
         self.mode_state_topic = Some(mode_state_topic.into());
+        self
+    }
+
+    /// A list of supported modes. Needs to be a subset of the default values.
+    pub fn modes<T: Into<String>>(mut self, modes: Vec<T>) -> Self {
+        self.modes = Some(modes.into_iter().map(|v| v.into()).collect());
         self
     }
 

@@ -259,6 +259,10 @@ pub struct Select {
     #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
     pub optimistic: Option<bool>,
 
+    /// List of options that can be selected. An empty list or a list with a single item is allowed.
+    #[serde(rename = "ops")]
+    pub options: Vec<String>,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -372,6 +376,12 @@ impl Select {
     /// Flag that defines if the select works in optimistic mode.
     pub fn optimistic(mut self, optimistic: bool) -> Self {
         self.optimistic = Some(optimistic);
+        self
+    }
+
+    /// List of options that can be selected. An empty list or a list with a single item is allowed.
+    pub fn options<T: Into<String>>(mut self, options: Vec<T>) -> Self {
+        self.options = options.into_iter().map(|v| v.into()).collect();
         self
     }
 
