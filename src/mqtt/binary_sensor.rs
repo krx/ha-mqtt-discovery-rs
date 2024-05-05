@@ -352,14 +352,6 @@ pub struct BinarySensor {
     #[serde(rename = "off_dly", skip_serializing_if = "Option::is_none")]
     pub off_delay: Option<i32>,
 
-    /// The string that represents the `online` state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
-    /// The string that represents the `offline` state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
-
     /// The string that represents the `off` state. It will be compared to the message in the `state_topic` (see `value_template` for details)
     #[serde(rename = "pl_off", skip_serializing_if = "Option::is_none")]
     pub payload_off: Option<String>,
@@ -477,18 +469,6 @@ impl BinarySensor {
     /// For sensors that only send `on` state updates (like PIRs), this variable sets a delay in seconds after which the sensor's state will be updated back to `off`.
     pub fn off_delay(mut self, off_delay: i32) -> Self {
         self.off_delay = Some(off_delay);
-        self
-    }
-
-    /// The string that represents the `online` state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
-    /// The string that represents the `offline` state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 

@@ -387,10 +387,6 @@ pub struct Vacuum {
     #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
     pub object_id: Option<String>,
 
-    /// The payload that represents the available state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
     /// The payload to send to the `command_topic` to begin a spot cleaning cycle.
     #[serde(rename = "pl_cln_sp", skip_serializing_if = "Option::is_none")]
     pub payload_clean_spot: Option<String>,
@@ -398,10 +394,6 @@ pub struct Vacuum {
     /// The payload to send to the `command_topic` to locate the vacuum (typically plays a song).
     #[serde(rename = "pl_loc", skip_serializing_if = "Option::is_none")]
     pub payload_locate: Option<String>,
-
-    /// The payload that represents the unavailable state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
 
     /// The payload to send to the `command_topic` to pause the vacuum.
     #[serde(rename = "pl_paus", skip_serializing_if = "Option::is_none")]
@@ -525,12 +517,6 @@ impl Vacuum {
         self
     }
 
-    /// The payload that represents the available state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
     /// The payload to send to the `command_topic` to begin a spot cleaning cycle.
     pub fn payload_clean_spot<T: Into<String>>(mut self, payload_clean_spot: T) -> Self {
         self.payload_clean_spot = Some(payload_clean_spot.into());
@@ -540,12 +526,6 @@ impl Vacuum {
     /// The payload to send to the `command_topic` to locate the vacuum (typically plays a song).
     pub fn payload_locate<T: Into<String>>(mut self, payload_locate: T) -> Self {
         self.payload_locate = Some(payload_locate.into());
-        self
-    }
-
-    /// The payload that represents the unavailable state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 

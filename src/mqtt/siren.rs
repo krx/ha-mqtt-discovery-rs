@@ -381,14 +381,6 @@ pub struct Siren {
     #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
     pub optimistic: Option<bool>,
 
-    /// The payload that represents the available state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
-    /// The payload that represents the unavailable state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
-
     /// The payload that represents `off` state. If specified, will be used for both comparing to the value in the `state_topic` (see `value_template` and `state_off` for details) and sending as `off` command to the `command_topic`.
     #[serde(rename = "pl_off", skip_serializing_if = "Option::is_none")]
     pub payload_off: Option<String>,
@@ -539,18 +531,6 @@ impl Siren {
     /// Flag that defines if siren works in optimistic mode.
     pub fn optimistic(mut self, optimistic: bool) -> Self {
         self.optimistic = Some(optimistic);
-        self
-    }
-
-    /// The payload that represents the available state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
-    /// The payload that represents the unavailable state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 

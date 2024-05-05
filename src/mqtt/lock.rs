@@ -366,17 +366,9 @@ pub struct Lock {
     #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
     pub optimistic: Option<bool>,
 
-    /// The payload that represents the available state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
     /// The payload sent to the lock to lock it.
     #[serde(rename = "pl_lock", skip_serializing_if = "Option::is_none")]
     pub payload_lock: Option<String>,
-
-    /// The payload that represents the unavailable state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
 
     /// The payload sent to the lock to unlock it.
     #[serde(rename = "pl_unlk", skip_serializing_if = "Option::is_none")]
@@ -532,21 +524,9 @@ impl Lock {
         self
     }
 
-    /// The payload that represents the available state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
     /// The payload sent to the lock to lock it.
     pub fn payload_lock<T: Into<String>>(mut self, payload_lock: T) -> Self {
         self.payload_lock = Some(payload_lock.into());
-        self
-    }
-
-    /// The payload that represents the unavailable state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 

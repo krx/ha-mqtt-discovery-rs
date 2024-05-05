@@ -313,17 +313,9 @@ pub struct DeviceTracker {
     #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
     pub object_id: Option<String>,
 
-    /// The payload that represents the available state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
     /// The payload value that represents the 'home' state for the device.
     #[serde(rename = "pl_home", skip_serializing_if = "Option::is_none")]
     pub payload_home: Option<String>,
-
-    /// The payload that represents the unavailable state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
 
     /// The payload value that represents the 'not_home' state for the device.
     #[serde(rename = "pl_not_home", skip_serializing_if = "Option::is_none")]
@@ -425,21 +417,9 @@ impl DeviceTracker {
         self
     }
 
-    /// The payload that represents the available state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
     /// The payload value that represents the 'home' state for the device.
     pub fn payload_home<T: Into<String>>(mut self, payload_home: T) -> Self {
         self.payload_home = Some(payload_home.into());
-        self
-    }
-
-    /// The payload that represents the unavailable state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 

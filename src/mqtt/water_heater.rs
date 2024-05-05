@@ -420,14 +420,6 @@ pub struct WaterHeater {
     #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
     pub optimistic: Option<bool>,
 
-    /// The payload that represents the available state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
-    /// The payload that represents the unavailable state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
-
     /// The payload that represents disabled state.
     #[serde(rename = "pl_off", skip_serializing_if = "Option::is_none")]
     pub payload_off: Option<String>,
@@ -637,18 +629,6 @@ impl WaterHeater {
     /// Flag that defines if the water heater works in optimistic mode
     pub fn optimistic(mut self, optimistic: bool) -> Self {
         self.optimistic = Some(optimistic);
-        self
-    }
-
-    /// The payload that represents the available state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
-    /// The payload that represents the unavailable state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 

@@ -7,6 +7,8 @@ const IGNORED_ATTRS = [
   "availability_mode",
   "availability_template",
   "availability_topic",
+  "payload_available",
+  "payload_not_available",
   "expire_after",
   "device",
   "entity_category",

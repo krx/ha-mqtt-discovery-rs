@@ -681,17 +681,9 @@ pub struct Cover {
     #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
     pub optimistic: Option<bool>,
 
-    /// The payload that represents the online state.
-    #[serde(rename = "pl_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_available: Option<String>,
-
     /// The command payload that closes the cover.
     #[serde(rename = "pl_cls", skip_serializing_if = "Option::is_none")]
     pub payload_close: Option<String>,
-
-    /// The payload that represents the offline state.
-    #[serde(rename = "pl_not_avail", skip_serializing_if = "Option::is_none")]
-    pub payload_not_available: Option<String>,
 
     /// The command payload that opens the cover.
     #[serde(rename = "pl_open", skip_serializing_if = "Option::is_none")]
@@ -897,21 +889,9 @@ impl Cover {
         self
     }
 
-    /// The payload that represents the online state.
-    pub fn payload_available<T: Into<String>>(mut self, payload_available: T) -> Self {
-        self.payload_available = Some(payload_available.into());
-        self
-    }
-
     /// The command payload that closes the cover.
     pub fn payload_close<T: Into<String>>(mut self, payload_close: T) -> Self {
         self.payload_close = Some(payload_close.into());
-        self
-    }
-
-    /// The payload that represents the offline state.
-    pub fn payload_not_available<T: Into<String>>(mut self, payload_not_available: T) -> Self {
-        self.payload_not_available = Some(payload_not_available.into());
         self
     }
 
