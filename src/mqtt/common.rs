@@ -350,6 +350,16 @@ pub enum Qos {
     ExactlyOnce,
 }
 
+/// Defines the temperature unit of the device, `C` or `F`. If this is not set, the temperature unit is set to the system temperature unit.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub enum TemperatureUnit {
+    #[serde(rename = "C")]
+    Celcius,
+
+    #[serde(rename = "F")]
+    Fahrenheit,
+}
+
 #[cfg(test)]
 mod tests {
     use assert_json_diff::assert_json_eq;

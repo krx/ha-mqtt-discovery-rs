@@ -1,4 +1,5 @@
 use super::common::Qos;
+use super::common::TemperatureUnit;
 use super::common::{Availability, Device, EntityCategory, Origin};
 pub use rust_decimal::Decimal;
 use serde_derive::Serialize;
@@ -475,7 +476,7 @@ pub struct WaterHeater {
 
     /// Defines the temperature unit of the device, `C` or `F`. If this is not set, the temperature unit is set to the system temperature unit.
     #[serde(rename = "temp_unit", skip_serializing_if = "Option::is_none")]
-    pub temperature_unit: Option<String>,
+    pub temperature_unit: Option<TemperatureUnit>,
 
     /// An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
@@ -717,7 +718,7 @@ impl WaterHeater {
     }
 
     /// Defines the temperature unit of the device, `C` or `F`. If this is not set, the temperature unit is set to the system temperature unit.
-    pub fn temperature_unit<T: Into<String>>(mut self, temperature_unit: T) -> Self {
+    pub fn temperature_unit<T: Into<TemperatureUnit>>(mut self, temperature_unit: T) -> Self {
         self.temperature_unit = Some(temperature_unit.into());
         self
     }

@@ -27,10 +27,12 @@ type FieldAttributes = {
     | "map"
     | ["string", "list"];
   rustType?: string;
+  enumValues?: {[name: string]: string}
   import?: string;
   useInto?: boolean;
   iterable?: boolean;
   rustSafeName?: string;
+
   keys?: any;
 };
 
@@ -123,6 +125,10 @@ function appendRustType(name: string, attrs: FieldAttributes) {
     case "qos":
       attrs.rustType = "Qos";
       attrs.import = `use super::common::Qos`;
+      break;
+    case "temperature_unit":
+      attrs.rustType = "TemperatureUnit";
+      attrs.import = `use super::common::TemperatureUnit`;
       break;
   }
 }
