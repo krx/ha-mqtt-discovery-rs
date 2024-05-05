@@ -1,7 +1,7 @@
-use super::common::{Availability, Device, EntityCategory, Origin};
-use serde_derive::Serialize;
-
 use super::common::Qos;
+use super::common::{Availability, Device, EntityCategory, Origin};
+pub use rust_decimal::Decimal;
+use serde_derive::Serialize;
 
 /// ---
 /// title: "MQTT HVAC"
@@ -558,7 +558,7 @@ pub struct Climate {
 
     /// Set the initial target temperature. The default value depends on the temperature unit and will be 21° or 69.8°F.
     #[serde(rename = "init", skip_serializing_if = "Option::is_none")]
-    pub initial: Option<f32>,
+    pub initial: Option<Decimal>,
 
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
@@ -574,19 +574,19 @@ pub struct Climate {
 
     /// The minimum target humidity percentage that can be set.
     #[serde(rename = "max_hum", skip_serializing_if = "Option::is_none")]
-    pub max_humidity: Option<f32>,
+    pub max_humidity: Option<Decimal>,
 
     /// Maximum set point available. The default value depends on the temperature unit, and will be 35°C or 95°F.
     #[serde(rename = "max_temp", skip_serializing_if = "Option::is_none")]
-    pub max_temp: Option<f32>,
+    pub max_temp: Option<Decimal>,
 
     /// The maximum target humidity percentage that can be set.
     #[serde(rename = "min_hum", skip_serializing_if = "Option::is_none")]
-    pub min_humidity: Option<f32>,
+    pub min_humidity: Option<Decimal>,
 
     /// Minimum set point available. The default value depends on the temperature unit, and will be 7°C or 44.6°F.
     #[serde(rename = "min_temp", skip_serializing_if = "Option::is_none")]
-    pub min_temp: Option<f32>,
+    pub min_temp: Option<Decimal>,
 
     /// A template to render the value sent to the `mode_command_topic` with.
     #[serde(rename = "mode_cmd_tpl", skip_serializing_if = "Option::is_none")]
@@ -648,7 +648,7 @@ pub struct Climate {
 
     /// The desired precision for this device. Can be used to match your actual thermostat's precision. Supported values are `0.1`, `0.5` and `1.0`.
     #[serde(rename = "precision", skip_serializing_if = "Option::is_none")]
-    pub precision: Option<f32>,
+    pub precision: Option<Decimal>,
 
     /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `preset_mode_command_topic`.
     #[serde(rename = "pr_mode_cmd_tpl", skip_serializing_if = "Option::is_none")]
@@ -767,7 +767,7 @@ pub struct Climate {
 
     /// Step size for temperature set point.
     #[serde(rename = "temp_step", skip_serializing_if = "Option::is_none")]
-    pub temp_step: Option<f32>,
+    pub temp_step: Option<Decimal>,
 
     /// An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
@@ -895,7 +895,7 @@ impl Climate {
     }
 
     /// Set the initial target temperature. The default value depends on the temperature unit and will be 21° or 69.8°F.
-    pub fn initial(mut self, initial: f32) -> Self {
+    pub fn initial(mut self, initial: Decimal) -> Self {
         self.initial = Some(initial);
         self
     }
@@ -922,25 +922,25 @@ impl Climate {
     }
 
     /// The minimum target humidity percentage that can be set.
-    pub fn max_humidity(mut self, max_humidity: f32) -> Self {
+    pub fn max_humidity(mut self, max_humidity: Decimal) -> Self {
         self.max_humidity = Some(max_humidity);
         self
     }
 
     /// Maximum set point available. The default value depends on the temperature unit, and will be 35°C or 95°F.
-    pub fn max_temp(mut self, max_temp: f32) -> Self {
+    pub fn max_temp(mut self, max_temp: Decimal) -> Self {
         self.max_temp = Some(max_temp);
         self
     }
 
     /// The maximum target humidity percentage that can be set.
-    pub fn min_humidity(mut self, min_humidity: f32) -> Self {
+    pub fn min_humidity(mut self, min_humidity: Decimal) -> Self {
         self.min_humidity = Some(min_humidity);
         self
     }
 
     /// Minimum set point available. The default value depends on the temperature unit, and will be 7°C or 44.6°F.
-    pub fn min_temp(mut self, min_temp: f32) -> Self {
+    pub fn min_temp(mut self, min_temp: Decimal) -> Self {
         self.min_temp = Some(min_temp);
         self
     }
@@ -1024,7 +1024,7 @@ impl Climate {
     }
 
     /// The desired precision for this device. Can be used to match your actual thermostat's precision. Supported values are `0.1`, `0.5` and `1.0`.
-    pub fn precision(mut self, precision: f32) -> Self {
+    pub fn precision(mut self, precision: Decimal) -> Self {
         self.precision = Some(precision);
         self
     }
@@ -1063,8 +1063,8 @@ impl Climate {
     }
 
     /// List of preset modes this climate is supporting. Common examples include `eco`, `away`, `boost`, `comfort`, `home`, `sleep` and `activity`.
-    pub fn preset_modes(mut self, preset_modes: Vec<String>) -> Self {
-        self.preset_modes = Some(preset_modes);
+    pub fn preset_modes<T: Into<String>>(mut self, preset_modes: Vec<T>) -> Self {
+        self.preset_modes = Some(preset_modes.into_iter().map(|v| v.into()).collect());
         self
     }
 
@@ -1261,7 +1261,7 @@ impl Climate {
     }
 
     /// Step size for temperature set point.
-    pub fn temp_step(mut self, temp_step: f32) -> Self {
+    pub fn temp_step(mut self, temp_step: Decimal) -> Self {
         self.temp_step = Some(temp_step);
         self
     }

@@ -1,11 +1,9 @@
-use super::common::{Availability, Device, EntityCategory, Origin};
-use serde_derive::Serialize;
-
-use super::device_classes::NumberDeviceClass;
-
 use super::common::Qos;
-
+use super::common::{Availability, Device, EntityCategory, Origin};
+use super::device_classes::NumberDeviceClass;
 use super::units::Unit;
+pub use rust_decimal::Decimal;
+use serde_derive::Serialize;
 
 /// ---
 /// title: "MQTT Number"
@@ -275,11 +273,11 @@ pub struct Number {
 
     /// Minimum value.
     #[serde(rename = "min", skip_serializing_if = "Option::is_none")]
-    pub min: Option<f32>,
+    pub min: Option<Decimal>,
 
     /// Maximum value.
     #[serde(rename = "max", skip_serializing_if = "Option::is_none")]
-    pub max: Option<f32>,
+    pub max: Option<Decimal>,
 
     /// Control how the number should be displayed in the UI. Can be set to `box` or `slider` to force a display mode.
     #[serde(rename = "mode", skip_serializing_if = "Option::is_none")]
@@ -315,7 +313,7 @@ pub struct Number {
 
     /// Step value. Smallest value `0.001`.
     #[serde(rename = "step", skip_serializing_if = "Option::is_none")]
-    pub step: Option<f32>,
+    pub step: Option<Decimal>,
 
     /// An ID that uniquely identifies this Number. If two Numbers have the same unique ID Home Assistant will raise an exception.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
@@ -414,13 +412,13 @@ impl Number {
     }
 
     /// Minimum value.
-    pub fn min(mut self, min: f32) -> Self {
+    pub fn min(mut self, min: Decimal) -> Self {
         self.min = Some(min);
         self
     }
 
     /// Maximum value.
-    pub fn max(mut self, max: f32) -> Self {
+    pub fn max(mut self, max: Decimal) -> Self {
         self.max = Some(max);
         self
     }
@@ -474,7 +472,7 @@ impl Number {
     }
 
     /// Step value. Smallest value `0.001`.
-    pub fn step(mut self, step: f32) -> Self {
+    pub fn step(mut self, step: Decimal) -> Self {
         self.step = Some(step);
         self
     }

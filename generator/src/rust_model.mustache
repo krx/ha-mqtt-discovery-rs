@@ -1,7 +1,7 @@
 use serde_derive::Serialize;
 use super::common::{Availability, Device, EntityCategory, Origin};
-{{#each properties}}
-{{#if import}}{{ import }};{{/if}}
+{{#each imports}}
+{{ this }};
 {{/each}}
 
 /// {{{ comment entityDoc }}}
@@ -35,7 +35,7 @@ pub struct {{ toPascalCase entityName }} {
     {{else}}
     #[serde(rename = "{{ abbreviation @key }}", skip_serializing_if = "Option::is_none")]
     {{/if}}
-    pub {{ rustSafeName }}: {{#unless required}}Option<{{/unless}}{{{ rustType }}}{{#unless required}}>{{/unless}},
+    pub {{ rustSafeName }}: {{#unless required}}Option<{{/unless}}{{#if iterable }}Vec<{{/if}}{{{ rustType }}}{{#if iterable }}>{{/if}}{{#unless required}}>{{/unless}},
 
     {{/each }}
 }
@@ -75,9 +75,16 @@ impl {{ toPascalCase entityName }} {
     {{#each properties }}
 
     /// {{{ comment description }}}
+    {{#if iterable}}
+    pub fn {{ rustSafeName }}{{#if useInto}}<T: Into<{{{ rustType }}}>>{{/if}}(mut self, {{ rustSafeName }}: Vec<{{#if useInto}}T{{else}}{{{ rustType }}}{{/if}}>) -> Self {
+        self.{{ rustSafeName }} = {{#unless required}}Some({{/unless}}{{ rustSafeName }}{{#if useInto}}.into_iter().map(|v| v.into()).collect(){{/if}}{{#unless required}}){{/unless}};
+        self
+    }
+    {{else}}
     pub fn {{ rustSafeName }}{{#if useInto}}<T: Into<{{{ rustType }}}>>{{/if}}(mut self, {{ rustSafeName }}: {{#if useInto}}T{{else}}{{{ rustType }}}{{/if}}) -> Self {
         self.{{ rustSafeName }} = {{#unless required}}Some({{/unless}}{{ rustSafeName }}{{#if useInto}}.into(){{/if}}{{#unless required}}){{/unless}};
         self
     }
+    {{/if}}
     {{/each }}
 }

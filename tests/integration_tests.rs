@@ -19,6 +19,7 @@ use rumqttc::v5::{
     Event::Incoming,
     MqttOptions,
 };
+use rust_decimal_macros::dec;
 use serde_json::{json, Value};
 use std::time::Duration;
 use testcontainers_modules::{mosquitto, testcontainers::runners::AsyncRunner};
@@ -201,11 +202,11 @@ async fn can_publish_a_number_configuration() {
                         .retain(true)
                         .device_class(NumberDeviceClass::Temperature)
                         .name("Temperature drift")
-                        .min(-10.0)
-                        .max(10.0)
+                        .min(dec!(-10.0))
+                        .max(dec!(10.0))
                         .mode("slider")
                         .payload_reset("NaN")
-                        .step(0.1)
+                        .step(dec!(0.1))
                         .unit_of_measurement(Unit::Temperature(Celsius)),
                 )
                 .await

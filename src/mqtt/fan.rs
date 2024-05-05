@@ -1,7 +1,6 @@
+use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use serde_derive::Serialize;
-
-use super::common::Qos;
 
 /// ---
 /// title: "MQTT Fan"
@@ -871,8 +870,8 @@ impl Fan {
     }
 
     /// List of preset modes this fan is capable of running at. Common examples include `auto`, `smart`, `whoosh`, `eco` and `breeze`.
-    pub fn preset_modes(mut self, preset_modes: Vec<String>) -> Self {
-        self.preset_modes = Some(preset_modes);
+    pub fn preset_modes<T: Into<String>>(mut self, preset_modes: Vec<T>) -> Self {
+        self.preset_modes = Some(preset_modes.into_iter().map(|v| v.into()).collect());
         self
     }
 

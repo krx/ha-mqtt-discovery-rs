@@ -29,6 +29,7 @@ type FieldAttributes = {
   rustType?: string;
   import?: string;
   useInto?: boolean;
+  iterable?: boolean;
   rustSafeName?: string;
   keys?: any;
 };
@@ -36,6 +37,7 @@ type FieldAttributes = {
 type MqttEntity = {
   entityName: string;
   entityDoc: string;
+  imports: Set<string>;
   properties: object;
 };
 
@@ -60,6 +62,7 @@ export function generateMqttEntityModel(
     return {
       entityName: name,
       entityDoc: docContent,
+      imports: new Set(entries.map(([name, attrs]) => attrs.import).filter(importInstruction => !!importInstruction)),
       properties: Object.fromEntries(entries),
     };
   } catch (e) {
@@ -82,7 +85,8 @@ function appendRustType(name: string, attrs: FieldAttributes) {
       attrs.useInto = true;
       break;
     case "float":
-      attrs.rustType = "f32";
+      attrs.rustType = "Decimal";
+      attrs.import = "pub use rust_decimal::Decimal"
       break;
     case "integer":
       attrs.rustType = "i32";
@@ -92,7 +96,9 @@ function appendRustType(name: string, attrs: FieldAttributes) {
       break;
     default:
       if (attrs.type.includes("list")) {
-        attrs.rustType = "Vec<String>";
+        attrs.rustType = "String";
+        attrs.iterable = true;
+        attrs.useInto = true;
       }
   }
   switch (name) {

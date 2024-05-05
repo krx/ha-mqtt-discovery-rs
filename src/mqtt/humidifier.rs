@@ -1,7 +1,7 @@
-use super::common::{Availability, Device, EntityCategory, Origin};
-use serde_derive::Serialize;
-
 use super::common::Qos;
+use super::common::{Availability, Device, EntityCategory, Origin};
+pub use rust_decimal::Decimal;
+use serde_derive::Serialize;
 
 /// ---
 /// title: "MQTT Humidifier"
@@ -419,11 +419,11 @@ pub struct Humidifier {
 
     /// The minimum target humidity percentage that can be set.
     #[serde(rename = "max_hum", skip_serializing_if = "Option::is_none")]
-    pub max_humidity: Option<f32>,
+    pub max_humidity: Option<Decimal>,
 
     /// The maximum target humidity percentage that can be set.
     #[serde(rename = "min_hum", skip_serializing_if = "Option::is_none")]
-    pub min_humidity: Option<f32>,
+    pub min_humidity: Option<Decimal>,
 
     /// The name of the humidifier. Can be set to `null` if only the device name is relevant.
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
@@ -629,13 +629,13 @@ impl Humidifier {
     }
 
     /// The minimum target humidity percentage that can be set.
-    pub fn max_humidity(mut self, max_humidity: f32) -> Self {
+    pub fn max_humidity(mut self, max_humidity: Decimal) -> Self {
         self.max_humidity = Some(max_humidity);
         self
     }
 
     /// The maximum target humidity percentage that can be set.
-    pub fn min_humidity(mut self, min_humidity: f32) -> Self {
+    pub fn min_humidity(mut self, min_humidity: Decimal) -> Self {
         self.min_humidity = Some(min_humidity);
         self
     }
@@ -755,8 +755,8 @@ impl Humidifier {
     }
 
     /// List of available modes this humidifier is capable of running at. Common examples include `normal`, `eco`, `away`, `boost`, `comfort`, `home`, `sleep`, `auto` and `baby`. These examples offer built-in translations but other custom modes are allowed as well.  This attribute ust be configured together with the `mode_command_topic` attribute.
-    pub fn modes(mut self, modes: Vec<String>) -> Self {
-        self.modes = Some(modes);
+    pub fn modes<T: Into<String>>(mut self, modes: Vec<T>) -> Self {
+        self.modes = Some(modes.into_iter().map(|v| v.into()).collect());
         self
     }
 

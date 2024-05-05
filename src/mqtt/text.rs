@@ -1,7 +1,6 @@
+use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use serde_derive::Serialize;
-
-use super::common::Qos;
 
 /// ---
 /// title: "MQTT Text"

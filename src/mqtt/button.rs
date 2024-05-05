@@ -1,9 +1,7 @@
-use super::common::{Availability, Device, EntityCategory, Origin};
-use serde_derive::Serialize;
-
-use super::device_classes::ButtonDeviceClass;
-
 use super::common::Qos;
+use super::common::{Availability, Device, EntityCategory, Origin};
+use super::device_classes::ButtonDeviceClass;
+use serde_derive::Serialize;
 
 /// ---
 /// title: "MQTT button"

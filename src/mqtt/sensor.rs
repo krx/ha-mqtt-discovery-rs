@@ -1,11 +1,9 @@
-use super::common::{Availability, Device, EntityCategory, Origin};
-use super::device_classes::SensorDeviceClass;
-use serde_derive::Serialize;
-
 use super::common::Qos;
 use super::common::SensorStateClass;
-
+use super::common::{Availability, Device, EntityCategory, Origin};
+use super::device_classes::SensorDeviceClass;
 use super::units::Unit;
+use serde_derive::Serialize;
 
 /// ---
 /// title: "MQTT Sensor"

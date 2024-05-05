@@ -1,8 +1,7 @@
+use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use super::device_classes::EventDeviceClass;
 use serde_derive::Serialize;
-
-use super::common::Qos;
 
 /// ---
 /// title: "MQTT Event"

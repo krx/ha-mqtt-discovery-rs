@@ -1,7 +1,7 @@
-use super::common::{Availability, Device, EntityCategory, Origin};
-use serde_derive::Serialize;
-
 use super::common::Qos;
+use super::common::{Availability, Device, EntityCategory, Origin};
+pub use rust_decimal::Decimal;
+use serde_derive::Serialize;
 
 /// ---
 /// title: "MQTT water heater"
@@ -381,11 +381,11 @@ pub struct WaterHeater {
 
     /// Maximum set point available. The default value depends on the temperature unit, and will be 60°C or 140°F.
     #[serde(rename = "max_temp", skip_serializing_if = "Option::is_none")]
-    pub max_temp: Option<f32>,
+    pub max_temp: Option<Decimal>,
 
     /// Minimum set point available. The default value depends on the temperature unit, and will be 43.3°C or 110°F.
     #[serde(rename = "min_temp", skip_serializing_if = "Option::is_none")]
-    pub min_temp: Option<f32>,
+    pub min_temp: Option<Decimal>,
 
     /// A template to render the value sent to the `mode_command_topic` with.
     #[serde(rename = "mode_cmd_tpl", skip_serializing_if = "Option::is_none")]
@@ -447,7 +447,7 @@ pub struct WaterHeater {
 
     /// The desired precision for this device. Can be used to match your actual water heater's precision. Supported values are `0.1`, `0.5` and `1.0`.
     #[serde(rename = "precision", skip_serializing_if = "Option::is_none")]
-    pub precision: Option<f32>,
+    pub precision: Option<Decimal>,
 
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
@@ -576,13 +576,13 @@ impl WaterHeater {
     }
 
     /// Maximum set point available. The default value depends on the temperature unit, and will be 60°C or 140°F.
-    pub fn max_temp(mut self, max_temp: f32) -> Self {
+    pub fn max_temp(mut self, max_temp: Decimal) -> Self {
         self.max_temp = Some(max_temp);
         self
     }
 
     /// Minimum set point available. The default value depends on the temperature unit, and will be 43.3°C or 110°F.
-    pub fn min_temp(mut self, min_temp: f32) -> Self {
+    pub fn min_temp(mut self, min_temp: Decimal) -> Self {
         self.min_temp = Some(min_temp);
         self
     }
@@ -666,7 +666,7 @@ impl WaterHeater {
     }
 
     /// The desired precision for this device. Can be used to match your actual water heater's precision. Supported values are `0.1`, `0.5` and `1.0`.
-    pub fn precision(mut self, precision: f32) -> Self {
+    pub fn precision(mut self, precision: Decimal) -> Self {
         self.precision = Some(precision);
         self
     }

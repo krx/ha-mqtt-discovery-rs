@@ -1,7 +1,6 @@
+use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use serde_derive::Serialize;
-
-use super::common::Qos;
 
 /// ---
 /// title: "MQTT Vacuum"
@@ -494,8 +493,8 @@ impl Vacuum {
     }
 
     /// List of possible fan speeds for the vacuum.
-    pub fn fan_speed_list(mut self, fan_speed_list: Vec<String>) -> Self {
-        self.fan_speed_list = Some(fan_speed_list);
+    pub fn fan_speed_list<T: Into<String>>(mut self, fan_speed_list: Vec<T>) -> Self {
+        self.fan_speed_list = Some(fan_speed_list.into_iter().map(|v| v.into()).collect());
         self
     }
 
@@ -605,8 +604,8 @@ impl Vacuum {
     }
 
     /// List of features that the vacuum supports (possible values are `start`, `stop`, `pause`, `return_home`, `battery`, `status`, `locate`, `clean_spot`, `fan_speed`, `send_command`).
-    pub fn supported_features(mut self, supported_features: Vec<String>) -> Self {
-        self.supported_features = Some(supported_features);
+    pub fn supported_features<T: Into<String>>(mut self, supported_features: Vec<T>) -> Self {
+        self.supported_features = Some(supported_features.into_iter().map(|v| v.into()).collect());
         self
     }
 
