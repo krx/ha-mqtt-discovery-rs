@@ -1,9 +1,14 @@
 #![recursion_limit = "256"]
 
-use std::fmt::Display;
-
 use anyhow::{anyhow, Result};
-use mqtt::{binary_sensor::BinarySensor, climate::Climate, number::Number, sensor::Sensor};
+use mqtt::{
+    alarm_control_panel::AlarmControlPanel, binary_sensor::BinarySensor, button::Button,
+    camera::Camera, climate::Climate, cover::Cover, device_tracker::DeviceTracker,
+    device_trigger::DeviceTrigger, event::Event, fan::Fan, humidifier::Humidifier, image::Image,
+    lawn_mower::LawnMower, lock::Lock, number::Number, scene::Scene, select::Select,
+    sensor::Sensor, siren::Siren, switch::Switch, tag::Tag, text::Text, update::Update,
+    vacuum::Vacuum, valve::Valve, water_heater::WaterHeater,
+};
 use rumqttc::v5::{
     mqttbytes::{v5::PublishProperties, QoS::AtLeastOnce},
     AsyncClient,
@@ -11,6 +16,8 @@ use rumqttc::v5::{
 use serde::Serialize;
 
 pub use rumqttc::v5;
+use serde_json::Value;
+
 pub mod mqtt;
 
 const ONE_WEEK_SECONDS: u32 = 60 * 60 * 24 * 7;
@@ -40,8 +47,9 @@ impl HomeAssistantMqtt {
     /// The `<node_id>` level can be used by clients to only subscribe to their own (command) topics by using one wildcard topic like <discovery_prefix>/+/<node_id>/+/set.
     ///
     /// Best practice for entities with a unique_id is to set `<object_id>` to unique_id and omit the `<node_id>`.
-    async fn publish<S: Serialize>(&self, component: Entity, entity: &S) -> Result<()> {
-        let attributes = serde_json::to_value(entity)?;
+    pub async fn publish_entity(&self, entity: Entity) -> Result<()> {
+        let component = entity.get_component_name();
+        let attributes = entity.get_attributes()?;
         let object_id = attributes
             .as_object()
             .ok_or(anyhow!("entity configuration should be an object"))?
@@ -56,7 +64,7 @@ impl HomeAssistantMqtt {
             .strip_suffix("/")
             .unwrap_or(&self.discovery_prefix);
         let topic = format!("{prefix}/{component}/{object_id}/config");
-        let payload = serde_json::ser::to_string(entity).unwrap();
+        let payload = serde_json::ser::to_string(&attributes).unwrap();
         let props = PublishProperties {
             //payload_format_indicator: Some(1),
             message_expiry_interval: Some(ONE_WEEK_SECONDS),
@@ -67,22 +75,6 @@ impl HomeAssistantMqtt {
             .client
             .publish_with_properties(topic, AtLeastOnce, true, payload, props)
             .await?)
-    }
-
-    pub async fn publish_binary_sensor(&self, binary_sensor: BinarySensor) -> Result<()> {
-        self.publish(Entity::BinarySensor, &binary_sensor).await
-    }
-
-    pub async fn publish_climate(&self, climate: Climate) -> Result<()> {
-        self.publish(Entity::Climate, &climate).await
-    }
-
-    pub async fn publish_number(&self, number: Number) -> Result<()> {
-        self.publish(Entity::Number, &number).await
-    }
-
-    pub async fn publish_sensor(&self, sensor: Sensor) -> Result<()> {
-        self.publish(Entity::Sensor, &sensor).await
     }
 
     pub async fn publish_data<S: Serialize>(
@@ -104,21 +96,105 @@ impl HomeAssistantMqtt {
     }
 }
 
-enum Entity {
-    BinarySensor,
-    Number,
-    Sensor,
-    Climate,
+#[derive(Clone)]
+pub enum Entity {
+    AlarmControlpanel(AlarmControlPanel),
+    BinarySensor(BinarySensor),
+    Button(Button),
+    Camera(Camera),
+    Climate(Climate),
+    Cover(Cover),
+    DeviceTracker(DeviceTracker),
+    DeviceTrigger(DeviceTrigger),
+    Event(Event),
+    Fan(Fan),
+    Humidifier(Humidifier),
+    Image(Image),
+    LawnMower(LawnMower),
+    //Light,
+    Lock(Lock),
+    //Notify,
+    Number(Number),
+    Scene(Scene),
+    Select(Select),
+    Sensor(Sensor),
+    Siren(Siren),
+    Switch(Switch),
+    Tag(Tag),
+    Text(Text),
+    Update(Update),
+    Vacuum(Vacuum),
+    Valve(Valve),
+    WaterHeater(WaterHeater),
 }
 
-impl Display for Entity {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = match self {
-            Entity::Sensor => "sensor",
-            Entity::Number => "number",
-            Entity::BinarySensor => "binary_sensor",
-            Entity::Climate => "climate",
+impl Entity {
+    fn get_component_name(&self) -> &str {
+        match self {
+            Entity::AlarmControlpanel(_) => "alarm_control_panel",
+            Entity::BinarySensor(_) => "binary_sensor",
+            Entity::Button(_) => "button",
+            Entity::Camera(_) => "camera",
+            Entity::Climate(_) => "climate",
+            Entity::Cover(_) => "cover",
+            Entity::DeviceTracker(_) => "device_tracker",
+            Entity::DeviceTrigger(_) => "device_trigger",
+            Entity::Event(_) => "event",
+            Entity::Fan(_) => "fan",
+            Entity::Humidifier(_) => "humidifier",
+            Entity::Image(_) => "image",
+            Entity::LawnMower(_) => "lawn_mower",
+            //Entity::Light(_) => "light",
+            Entity::Lock(_) => "lock",
+            //Entity::Notify(_) => "notify",
+            Entity::Number(_) => "number",
+            Entity::Scene(_) => "scene",
+            Entity::Select(_) => "select",
+            Entity::Sensor(_) => "sensor",
+            Entity::Siren(_) => "siren",
+            Entity::Switch(_) => "switch",
+            Entity::Tag(_) => "tag",
+            Entity::Text(_) => "text",
+            Entity::Update(_) => "update",
+            Entity::Vacuum(_) => "vacuum",
+            Entity::Valve(_) => "valve",
+            Entity::WaterHeater(_) => "water_heater",
+        }
+    }
+
+    fn get_attributes(&self) -> Result<Value> {
+        let attributes = match self {
+            Entity::AlarmControlpanel(alarm_control_panel) => {
+                serde_json::to_value(alarm_control_panel)?
+            }
+            Entity::BinarySensor(binary_sensor) => serde_json::to_value(binary_sensor)?,
+            Entity::Button(button) => serde_json::to_value(button)?,
+            Entity::Camera(camera) => serde_json::to_value(camera)?,
+            Entity::Climate(climate) => serde_json::to_value(climate)?,
+            Entity::Cover(cover) => serde_json::to_value(cover)?,
+            Entity::DeviceTracker(device_tracker) => serde_json::to_value(device_tracker)?,
+            Entity::DeviceTrigger(device_trigger) => serde_json::to_value(device_trigger)?,
+            Entity::Event(event) => serde_json::to_value(event)?,
+            Entity::Fan(fan) => serde_json::to_value(fan)?,
+            Entity::Humidifier(humidifier) => serde_json::to_value(humidifier)?,
+            Entity::Image(image) => serde_json::to_value(image)?,
+            Entity::LawnMower(lawn_mower) => serde_json::to_value(lawn_mower)?,
+            //Entity::Light(light) => serde_json::to_value(light)?,
+            Entity::Lock(lock) => serde_json::to_value(lock)?,
+            //Entity::Notify(notify) => serde_json::to_value(notify)?,
+            Entity::Number(number) => serde_json::to_value(number)?,
+            Entity::Scene(scene) => serde_json::to_value(scene)?,
+            Entity::Select(select) => serde_json::to_value(select)?,
+            Entity::Sensor(sensor) => serde_json::to_value(sensor)?,
+            Entity::Siren(siren) => serde_json::to_value(siren)?,
+            Entity::Switch(switch) => serde_json::to_value(switch)?,
+            Entity::Tag(tag) => serde_json::to_value(tag)?,
+            Entity::Text(text) => serde_json::to_value(text)?,
+            Entity::Update(update) => serde_json::to_value(update)?,
+            Entity::Vacuum(vacuum) => serde_json::to_value(vacuum)?,
+            Entity::Valve(valve) => serde_json::to_value(valve)?,
+            Entity::WaterHeater(water_heater) => serde_json::to_value(water_heater)?,
         };
-        write!(f, "{name}")
+        Ok(attributes)
     }
 }

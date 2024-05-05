@@ -2,13 +2,15 @@ use assert_json_diff::assert_json_eq;
 use hass_mqtt_autodiscovery::{
     mqtt::{
         binary_sensor::BinarySensor,
-        common::{Availability, Device, DeviceConnection, Origin, SensorStateClass},
+        common::{
+            Availability, Device, DeviceConnection, EntityCategory, Origin, SensorStateClass,
+        },
         device_classes::{BinarySensorDeviceClass, NumberDeviceClass, SensorDeviceClass},
         number::Number,
         sensor::Sensor,
         units::{TempUnit::Celsius, Unit},
     },
-    HomeAssistantMqtt,
+    Entity, HomeAssistantMqtt,
 };
 use rumqttc::v5::{
     mqttbytes::{
@@ -98,7 +100,7 @@ async fn can_publish_a_binary_sensor_configuration() {
         let registry = HomeAssistantMqtt::new(client, "homeassistant/");
         tokio::spawn(async move {
             registry
-                .publish_binary_sensor(
+                .publish_entity(Entity::BinarySensor(
                     BinarySensor::default()
                         .topic_prefix("temperature_devices/barometer-09AF")
                         .origin(origin())
@@ -116,7 +118,7 @@ async fn can_publish_a_binary_sensor_configuration() {
                         .off_delay(10)
                         .payload_off("Off")
                         .payload_on("On"),
-                )
+                ))
                 .await
                 .expect("message to be published");
         });
@@ -184,7 +186,7 @@ async fn can_publish_a_number_configuration() {
         let registry = HomeAssistantMqtt::new(client, "homeassistant/");
         tokio::spawn(async move {
             registry
-                .publish_number(
+                .publish_entity(Entity::Number(
                     Number::default()
                         .topic_prefix("temperature_devices/barometer-09AF")
                         .origin(origin())
@@ -208,7 +210,7 @@ async fn can_publish_a_number_configuration() {
                         .payload_reset("NaN")
                         .step(dec!(0.1))
                         .unit_of_measurement(Unit::Temperature(Celsius)),
-                )
+                ))
                 .await
                 .expect("message to be published");
         });
@@ -282,7 +284,7 @@ async fn can_publish_a_sensor_configuration() {
         let registry = HomeAssistantMqtt::new(client, "homeassistant/");
         tokio::spawn(async move {
             registry
-                .publish_sensor(
+                .publish_entity(Entity::Sensor(
                     Sensor::default()
                         .topic_prefix("temperature_devices/barometer-09AF")
                         .origin(origin())
@@ -300,7 +302,7 @@ async fn can_publish_a_sensor_configuration() {
                         .suggested_display_precision(1)
                         .state_class(SensorStateClass::Measurement)
                         .unit_of_measurement(Unit::Temperature(Celsius)),
-                )
+                ))
                 .await
                 .expect("message to be published");
         });
