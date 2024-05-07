@@ -1,6 +1,7 @@
 use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use super::device_classes::ButtonDeviceClass;
+use crate::Entity;
 use serde_derive::Serialize;
 
 /// ---
@@ -415,5 +416,11 @@ impl Button {
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self
+    }
+}
+
+impl Into<Entity> for Button {
+    fn into(self) -> Entity {
+        Entity::Button(self)
     }
 }

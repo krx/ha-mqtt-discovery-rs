@@ -1,6 +1,7 @@
 use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use super::device_classes::UpdateDeviceClass;
+use crate::Entity;
 use serde_derive::Serialize;
 
 /// ---
@@ -572,5 +573,11 @@ impl Update {
     pub fn value_template<T: Into<String>>(mut self, value_template: T) -> Self {
         self.value_template = Some(value_template.into());
         self
+    }
+}
+
+impl Into<Entity> for Update {
+    fn into(self) -> Entity {
+        Entity::Update(self)
     }
 }

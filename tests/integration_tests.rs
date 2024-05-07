@@ -2,9 +2,7 @@ use assert_json_diff::assert_json_eq;
 use hass_mqtt_autodiscovery::{
     mqtt::{
         binary_sensor::BinarySensor,
-        common::{
-            Availability, Device, DeviceConnection, EntityCategory, Origin, SensorStateClass,
-        },
+        common::{Availability, Device, DeviceConnection, Origin, SensorStateClass},
         device_classes::{BinarySensorDeviceClass, NumberDeviceClass, SensorDeviceClass},
         number::Number,
         sensor::Sensor,

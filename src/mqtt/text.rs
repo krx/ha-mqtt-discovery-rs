@@ -1,5 +1,6 @@
 use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
+use crate::Entity;
 use serde_derive::Serialize;
 
 /// ---
@@ -447,5 +448,11 @@ impl Text {
     pub fn value_template<T: Into<String>>(mut self, value_template: T) -> Self {
         self.value_template = Some(value_template.into());
         self
+    }
+}
+
+impl Into<Entity> for Text {
+    fn into(self) -> Entity {
+        Entity::Text(self)
     }
 }

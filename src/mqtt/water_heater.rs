@@ -1,6 +1,7 @@
 use super::common::Qos;
 use super::common::TemperatureUnit;
 use super::common::{Availability, Device, EntityCategory, Origin};
+use crate::Entity;
 pub use rust_decimal::Decimal;
 use serde_derive::Serialize;
 
@@ -723,5 +724,11 @@ impl WaterHeater {
     pub fn value_template<T: Into<String>>(mut self, value_template: T) -> Self {
         self.value_template = Some(value_template.into());
         self
+    }
+}
+
+impl Into<Entity> for WaterHeater {
+    fn into(self) -> Entity {
+        Entity::WaterHeater(self)
     }
 }

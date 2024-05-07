@@ -1,4 +1,5 @@
 use super::common::{Availability, Device, EntityCategory, Origin};
+use crate::Entity;
 use serde_derive::Serialize;
 
 /// ---
@@ -407,5 +408,11 @@ impl Image {
     pub fn url_topic<T: Into<String>>(mut self, url_topic: T) -> Self {
         self.url_topic = url_topic.into();
         self
+    }
+}
+
+impl Into<Entity> for Image {
+    fn into(self) -> Entity {
+        Entity::Image(self)
     }
 }

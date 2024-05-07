@@ -1,5 +1,6 @@
 use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
+use crate::Entity;
 pub use rust_decimal::Decimal;
 use serde_derive::Serialize;
 
@@ -768,5 +769,11 @@ impl Humidifier {
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self
+    }
+}
+
+impl Into<Entity> for Humidifier {
+    fn into(self) -> Entity {
+        Entity::Humidifier(self)
     }
 }

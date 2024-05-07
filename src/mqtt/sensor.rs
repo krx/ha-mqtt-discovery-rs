@@ -3,6 +3,7 @@ use super::common::SensorStateClass;
 use super::common::{Availability, Device, EntityCategory, Origin};
 use super::device_classes::SensorDeviceClass;
 use super::units::Unit;
+use crate::Entity;
 use serde_derive::Serialize;
 
 /// ---
@@ -705,5 +706,11 @@ impl Sensor {
     pub fn value_template<T: Into<String>>(mut self, value_template: T) -> Self {
         self.value_template = Some(value_template.into());
         self
+    }
+}
+
+impl Into<Entity> for Sensor {
+    fn into(self) -> Entity {
+        Entity::Sensor(self)
     }
 }

@@ -1,5 +1,6 @@
 use super::common::Qos;
 use super::common::{Availability, Device, EntityCategory, Origin};
+use crate::Entity;
 use serde_derive::Serialize;
 
 /// ---
@@ -499,5 +500,11 @@ impl LawnMower {
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self
+    }
+}
+
+impl Into<Entity> for LawnMower {
+    fn into(self) -> Entity {
+        Entity::LawnMower(self)
     }
 }
