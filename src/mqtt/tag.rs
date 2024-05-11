@@ -185,8 +185,8 @@ impl Tag {
     }
 }
 
-impl Into<Entity> for Tag {
-    fn into(self) -> Entity {
-        Entity::Tag(self)
+impl From<Tag> for Entity {
+    fn from(value: Tag) -> Self {
+        Entity::Tag(value)
     }
 }

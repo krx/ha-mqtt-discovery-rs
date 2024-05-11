@@ -467,8 +467,8 @@ impl DeviceTracker {
     }
 }
 
-impl Into<Entity> for DeviceTracker {
-    fn into(self) -> Entity {
-        Entity::DeviceTracker(self)
+impl From<DeviceTracker> for Entity {
+    fn from(value: DeviceTracker) -> Self {
+        Entity::DeviceTracker(value)
     }
 }

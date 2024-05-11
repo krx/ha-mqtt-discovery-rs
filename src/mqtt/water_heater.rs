@@ -727,8 +727,8 @@ impl WaterHeater {
     }
 }
 
-impl Into<Entity> for WaterHeater {
-    fn into(self) -> Entity {
-        Entity::WaterHeater(self)
+impl From<WaterHeater> for Entity {
+    fn from(value: WaterHeater) -> Self {
+        Entity::WaterHeater(value)
     }
 }

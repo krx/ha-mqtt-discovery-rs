@@ -448,8 +448,8 @@ impl Event {
     }
 }
 
-impl Into<Entity> for Event {
-    fn into(self) -> Entity {
-        Entity::Event(self)
+impl From<Event> for Entity {
+    fn from(value: Event) -> Self {
+        Entity::Event(value)
     }
 }

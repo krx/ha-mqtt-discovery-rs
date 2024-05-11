@@ -503,8 +503,8 @@ impl LawnMower {
     }
 }
 
-impl Into<Entity> for LawnMower {
-    fn into(self) -> Entity {
-        Entity::LawnMower(self)
+impl From<LawnMower> for Entity {
+    fn from(value: LawnMower) -> Self {
+        Entity::LawnMower(value)
     }
 }

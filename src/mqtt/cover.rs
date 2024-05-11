@@ -1059,8 +1059,8 @@ impl Cover {
     }
 }
 
-impl Into<Entity> for Cover {
-    fn into(self) -> Entity {
-        Entity::Cover(self)
+impl From<Cover> for Entity {
+    fn from(value: Cover) -> Self {
+        Entity::Cover(value)
     }
 }

@@ -417,8 +417,8 @@ impl Select {
     }
 }
 
-impl Into<Entity> for Select {
-    fn into(self) -> Entity {
-        Entity::Select(self)
+impl From<Select> for Entity {
+    fn from(value: Select) -> Self {
+        Entity::Select(value)
     }
 }

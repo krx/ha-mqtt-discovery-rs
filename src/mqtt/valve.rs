@@ -698,8 +698,8 @@ impl Valve {
     }
 }
 
-impl Into<Entity> for Valve {
-    fn into(self) -> Entity {
-        Entity::Valve(self)
+impl From<Valve> for Entity {
+    fn from(value: Valve) -> Self {
+        Entity::Valve(value)
     }
 }

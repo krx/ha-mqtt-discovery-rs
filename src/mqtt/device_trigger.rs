@@ -282,8 +282,8 @@ impl DeviceTrigger {
     }
 }
 
-impl Into<Entity> for DeviceTrigger {
-    fn into(self) -> Entity {
-        Entity::DeviceTrigger(self)
+impl From<DeviceTrigger> for Entity {
+    fn from(value: DeviceTrigger) -> Self {
+        Entity::DeviceTrigger(value)
     }
 }

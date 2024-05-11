@@ -602,8 +602,8 @@ impl Siren {
     }
 }
 
-impl Into<Entity> for Siren {
-    fn into(self) -> Entity {
-        Entity::Siren(self)
+impl From<Siren> for Entity {
+    fn from(value: Siren) -> Self {
+        Entity::Siren(value)
     }
 }

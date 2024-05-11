@@ -545,8 +545,8 @@ impl Switch {
     }
 }
 
-impl Into<Entity> for Switch {
-    fn into(self) -> Entity {
-        Entity::Switch(self)
+impl From<Switch> for Entity {
+    fn from(value: Switch) -> Self {
+        Entity::Switch(value)
     }
 }

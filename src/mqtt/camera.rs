@@ -327,8 +327,8 @@ impl Camera {
     }
 }
 
-impl Into<Entity> for Camera {
-    fn into(self) -> Entity {
-        Entity::Camera(self)
+impl From<Camera> for Entity {
+    fn from(value: Camera) -> Self {
+        Entity::Camera(value)
     }
 }

@@ -497,8 +497,8 @@ impl Number {
     }
 }
 
-impl Into<Entity> for Number {
-    fn into(self) -> Entity {
-        Entity::Number(self)
+impl From<Number> for Entity {
+    fn from(value: Number) -> Self {
+        Entity::Number(value)
     }
 }

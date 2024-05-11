@@ -1291,8 +1291,8 @@ impl Climate {
     }
 }
 
-impl Into<Entity> for Climate {
-    fn into(self) -> Entity {
-        Entity::Climate(self)
+impl From<Climate> for Entity {
+    fn from(value: Climate) -> Self {
+        Entity::Climate(value)
     }
 }

@@ -411,8 +411,8 @@ impl Image {
     }
 }
 
-impl Into<Entity> for Image {
-    fn into(self) -> Entity {
-        Entity::Image(self)
+impl From<Image> for Entity {
+    fn from(value: Image) -> Self {
+        Entity::Image(value)
     }
 }

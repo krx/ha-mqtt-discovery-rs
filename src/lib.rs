@@ -98,7 +98,7 @@ impl HomeAssistantMqtt {
 
 #[derive(Clone)]
 pub enum Entity {
-    AlarmControlpanel(AlarmControlPanel),
+    AlarmControlPanel(AlarmControlPanel),
     BinarySensor(BinarySensor),
     Button(Button),
     Camera(Camera),
@@ -131,7 +131,7 @@ pub enum Entity {
 impl Entity {
     fn get_component_name(&self) -> &str {
         match self {
-            Entity::AlarmControlpanel(_) => "alarm_control_panel",
+            Entity::AlarmControlPanel(_) => "alarm_control_panel",
             Entity::BinarySensor(_) => "binary_sensor",
             Entity::Button(_) => "button",
             Entity::Camera(_) => "camera",
@@ -164,7 +164,7 @@ impl Entity {
 
     fn get_attributes(&self) -> Result<Value> {
         let attributes = match self {
-            Entity::AlarmControlpanel(alarm_control_panel) => {
+            Entity::AlarmControlPanel(alarm_control_panel) => {
                 serde_json::to_value(alarm_control_panel)?
             }
             Entity::BinarySensor(binary_sensor) => serde_json::to_value(binary_sensor)?,

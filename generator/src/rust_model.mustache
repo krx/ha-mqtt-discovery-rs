@@ -90,8 +90,8 @@ impl {{ toPascalCase entityName }} {
     {{/each }}
 }
 
-impl Into<Entity> for {{ toPascalCase entityName }} {
-    fn into(self) -> Entity {
-        Entity::{{ toPascalCase entityName }}(self)
+impl From<{{ toPascalCase entityName }}> for Entity {
+    fn from(value: {{ toPascalCase entityName }}) -> Self {
+        Entity::{{ toPascalCase entityName }}(value)
     }
 }

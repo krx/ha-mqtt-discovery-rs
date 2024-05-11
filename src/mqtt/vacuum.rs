@@ -597,8 +597,8 @@ impl Vacuum {
     }
 }
 
-impl Into<Entity> for Vacuum {
-    fn into(self) -> Entity {
-        Entity::Vacuum(self)
+impl From<Vacuum> for Entity {
+    fn from(value: Vacuum) -> Self {
+        Entity::Vacuum(value)
     }
 }

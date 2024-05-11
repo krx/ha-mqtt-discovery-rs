@@ -407,8 +407,8 @@ impl Scene {
     }
 }
 
-impl Into<Entity> for Scene {
-    fn into(self) -> Entity {
-        Entity::Scene(self)
+impl From<Scene> for Entity {
+    fn from(value: Scene) -> Self {
+        Entity::Scene(value)
     }
 }

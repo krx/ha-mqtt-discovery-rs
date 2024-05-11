@@ -576,8 +576,8 @@ impl Update {
     }
 }
 
-impl Into<Entity> for Update {
-    fn into(self) -> Entity {
-        Entity::Update(self)
+impl From<Update> for Entity {
+    fn from(value: Update) -> Self {
+        Entity::Update(value)
     }
 }

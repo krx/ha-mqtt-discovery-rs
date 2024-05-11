@@ -451,8 +451,8 @@ impl Text {
     }
 }
 
-impl Into<Entity> for Text {
-    fn into(self) -> Entity {
-        Entity::Text(self)
+impl From<Text> for Entity {
+    fn from(value: Text) -> Self {
+        Entity::Text(value)
     }
 }

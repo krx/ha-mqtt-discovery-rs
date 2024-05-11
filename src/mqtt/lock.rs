@@ -610,8 +610,8 @@ impl Lock {
     }
 }
 
-impl Into<Entity> for Lock {
-    fn into(self) -> Entity {
-        Entity::Lock(self)
+impl From<Lock> for Entity {
+    fn from(value: Lock) -> Self {
+        Entity::Lock(value)
     }
 }

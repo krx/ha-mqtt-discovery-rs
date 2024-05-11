@@ -709,8 +709,8 @@ impl Sensor {
     }
 }
 
-impl Into<Entity> for Sensor {
-    fn into(self) -> Entity {
-        Entity::Sensor(self)
+impl From<Sensor> for Entity {
+    fn from(value: Sensor) -> Self {
+        Entity::Sensor(value)
     }
 }

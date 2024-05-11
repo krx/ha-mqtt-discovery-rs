@@ -772,8 +772,8 @@ impl Humidifier {
     }
 }
 
-impl Into<Entity> for Humidifier {
-    fn into(self) -> Entity {
-        Entity::Humidifier(self)
+impl From<Humidifier> for Entity {
+    fn from(value: Humidifier) -> Self {
+        Entity::Humidifier(value)
     }
 }

@@ -419,8 +419,8 @@ impl Button {
     }
 }
 
-impl Into<Entity> for Button {
-    fn into(self) -> Entity {
-        Entity::Button(self)
+impl From<Button> for Entity {
+    fn from(value: Button) -> Self {
+        Entity::Button(value)
     }
 }

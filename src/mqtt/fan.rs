@@ -899,8 +899,8 @@ impl Fan {
     }
 }
 
-impl Into<Entity> for Fan {
-    fn into(self) -> Entity {
-        Entity::Fan(self)
+impl From<Fan> for Entity {
+    fn from(value: Fan) -> Self {
+        Entity::Fan(value)
     }
 }

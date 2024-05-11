@@ -510,8 +510,8 @@ impl BinarySensor {
     }
 }
 
-impl Into<Entity> for BinarySensor {
-    fn into(self) -> Entity {
-        Entity::BinarySensor(self)
+impl From<BinarySensor> for Entity {
+    fn from(value: BinarySensor) -> Self {
+        Entity::BinarySensor(value)
     }
 }

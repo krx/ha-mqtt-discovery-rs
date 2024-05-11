@@ -671,8 +671,8 @@ impl AlarmControlPanel {
     }
 }
 
-impl Into<Entity> for AlarmControlPanel {
-    fn into(self) -> Entity {
-        Entity::AlarmControlpanel(self)
+impl From<AlarmControlPanel> for Entity {
+    fn from(value: AlarmControlPanel) -> Self {
+        Entity::AlarmControlPanel(value)
     }
 }
