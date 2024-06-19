@@ -1,5 +1,5 @@
 use assert_json_diff::assert_json_eq;
-use hass_mqtt_autodiscovery::{
+use ha_mqtt_discovery::{
     mqtt::{
         binary_sensor::BinarySensor,
         common::{Availability, Device, DeviceConnection, Origin, SensorStateClass},
