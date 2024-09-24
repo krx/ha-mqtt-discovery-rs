@@ -23,7 +23,7 @@ use serde_derive::Serialize;
 ///
 /// If a `state_topic` is configured, the entity's state will be updated only after an MQTT message is received on `state_topic` matching `state_open`, `state_opening`, `state_closed` or `state_closing`. Commands configured through `payload_open`, `payload_closed`, and `payload_stop` will be published to `command_topic` to control the valve.
 ///
-/// To use your MQTT valve in your installation, add the following to your `configuration.yaml` file:
+/// To use your MQTT valve in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry for a value that is set by open or close command
@@ -43,9 +43,9 @@ use serde_derive::Serialize;
 /// {"state": "opening", "position": 10}
 /// ```
 ///
-/// The wanted position value or `payload_stop` will be published to `command_topic` to control the valve when the services `valve.open`, `value.close`, or `value.set_position` are called.
+/// The wanted position value or `payload_stop` will be published to `command_topic` to control the valve when the actions `valve.open`, `value.close`, or `value.set_position` are called.
 ///
-/// To use your MQTT valve in your installation, add the following to your `configuration.yaml` file:
+/// To use your MQTT valve in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry for a valve that reports position
@@ -135,6 +135,10 @@ use serde_derive::Serialize;
 ///       description: The model of the device.
 ///       required: false
 ///       type: string
+///     model_id:
+///       description: The model identifier of the device.
+///       required: false
+///       type: string
 ///     name:
 ///       description: The name of the device.
 ///       required: false
@@ -220,16 +224,16 @@ use serde_derive::Serialize;
 ///   type: string
 ///   default: OPEN
 /// payload_stop:
-///   description: The command payload that stops the valve. When not configured, the valve will not support the `valve.stop` service.
+///   description: The command payload that stops the valve. When not configured, the valve will not support the `valve.stop` action.
 ///   required: false
 ///   type: string
 /// position_closed:
-///   description: Number which represents closed position. The valve's position will be scaled to the(`position_closed`...`position_open`) range when a service is called and scaled back when a value is received.
+///   description: Number which represents closed position. The valve's position will be scaled to the(`position_closed`...`position_open`) range when an action is performed and scaled back when a value is received.
 ///   required: false
 ///   type: integer
 ///   default: 0
 /// position_open:
-///   description: Number which represents open position. The valve's position will be scaled to (`position_closed`...`position_open`) range when a service is called and scaled back when a value is received.
+///   description: Number which represents open position. The valve's position will be scaled to (`position_closed`...`position_open`) range when an is performed and scaled back when a value is received.
 ///   required: false
 ///   type: integer
 ///   default: 100
@@ -269,7 +273,7 @@ use serde_derive::Serialize;
 ///   type: string
 ///   default: opening
 /// state_topic:
-///   description: The MQTT topic subscribed to receive valve state messages. State topic accepts a state payload (`open`, `opening`, `closed`, or `closing`) or, if `reports_position` is supported, a numeric value representing the position. In a JSON format with variables `state` and `position` both values can received together.
+///   description: The MQTT topic subscribed to receive valve state messages. State topic accepts a state payload (`open`, `opening`, `closed`, or `closing`) or, if `reports_position` is supported, a numeric value representing the position. In a JSON format with variables `state` and `position` both values can received together. A "None" state value resets to an `unknown` state. An empty string is ignored.
 ///   required: false
 ///   type: string
 /// unique_id:
@@ -282,13 +286,11 @@ use serde_derive::Serialize;
 ///   type: template
 /// {% endconfiguration %}
 ///
-/// <div class="note">
-///
+/// {% note %}
 /// MQTT valve expects position values to be in the range of 0 to 100, where 0 indicates a closed position and 100 indicates a fully open position.
 /// If `position_open` or `position_closed` are set to a different range (for example, 40 to 140), when sending a command to the device, the range will be adjusted to the device range. For example, position 0 will send a value of 40 to device. When the device receives a position payload, it will be adjusted back to the 0 to 100 range. In our example, the device value of 40 will report valve position 0.
 /// `position_open` and `position_closed` can also be used to reverse the direction of the device: If `position_closed` is set to 100 and `position_open` is set to `0`, the device operation will be inverted. For example, when setting the position to 40, a value of 60 will be sent to the device.
-///
-/// </div>
+/// {% endnote %}
 ///
 /// ## Examples
 ///
@@ -453,15 +455,15 @@ pub struct Valve {
     #[serde(rename = "pl_open", skip_serializing_if = "Option::is_none")]
     pub payload_open: Option<String>,
 
-    /// The command payload that stops the valve. When not configured, the valve will not support the `valve.stop` service.
+    /// The command payload that stops the valve. When not configured, the valve will not support the `valve.stop` action.
     #[serde(rename = "pl_stop", skip_serializing_if = "Option::is_none")]
     pub payload_stop: Option<String>,
 
-    /// Number which represents closed position. The valve's position will be scaled to the(`position_closed`...`position_open`) range when a service is called and scaled back when a value is received.
+    /// Number which represents closed position. The valve's position will be scaled to the(`position_closed`...`position_open`) range when an action is performed and scaled back when a value is received.
     #[serde(rename = "pos_clsd", skip_serializing_if = "Option::is_none")]
     pub position_closed: Option<i32>,
 
-    /// Number which represents open position. The valve's position will be scaled to (`position_closed`...`position_open`) range when a service is called and scaled back when a value is received.
+    /// Number which represents open position. The valve's position will be scaled to (`position_closed`...`position_open`) range when an is performed and scaled back when a value is received.
     #[serde(rename = "pos_open", skip_serializing_if = "Option::is_none")]
     pub position_open: Option<i32>,
 
@@ -493,7 +495,7 @@ pub struct Valve {
     #[serde(rename = "stat_opening", skip_serializing_if = "Option::is_none")]
     pub state_opening: Option<String>,
 
-    /// The MQTT topic subscribed to receive valve state messages. State topic accepts a state payload (`open`, `opening`, `closed`, or `closing`) or, if `reports_position` is supported, a numeric value representing the position. In a JSON format with variables `state` and `position` both values can received together.
+    /// The MQTT topic subscribed to receive valve state messages. State topic accepts a state payload (`open`, `opening`, `closed`, or `closing`) or, if `reports_position` is supported, a numeric value representing the position. In a JSON format with variables `state` and `position` both values can received together. A "None" state value resets to an `unknown` state. An empty string is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -619,19 +621,19 @@ impl Valve {
         self
     }
 
-    /// The command payload that stops the valve. When not configured, the valve will not support the `valve.stop` service.
+    /// The command payload that stops the valve. When not configured, the valve will not support the `valve.stop` action.
     pub fn payload_stop<T: Into<String>>(mut self, payload_stop: T) -> Self {
         self.payload_stop = Some(payload_stop.into());
         self
     }
 
-    /// Number which represents closed position. The valve's position will be scaled to the(`position_closed`...`position_open`) range when a service is called and scaled back when a value is received.
+    /// Number which represents closed position. The valve's position will be scaled to the(`position_closed`...`position_open`) range when an action is performed and scaled back when a value is received.
     pub fn position_closed(mut self, position_closed: i32) -> Self {
         self.position_closed = Some(position_closed);
         self
     }
 
-    /// Number which represents open position. The valve's position will be scaled to (`position_closed`...`position_open`) range when a service is called and scaled back when a value is received.
+    /// Number which represents open position. The valve's position will be scaled to (`position_closed`...`position_open`) range when an is performed and scaled back when a value is received.
     pub fn position_open(mut self, position_open: i32) -> Self {
         self.position_open = Some(position_open);
         self
@@ -679,7 +681,7 @@ impl Valve {
         self
     }
 
-    /// The MQTT topic subscribed to receive valve state messages. State topic accepts a state payload (`open`, `opening`, `closed`, or `closing`) or, if `reports_position` is supported, a numeric value representing the position. In a JSON format with variables `state` and `position` both values can received together.
+    /// The MQTT topic subscribed to receive valve state messages. State topic accepts a state payload (`open`, `opening`, `closed`, or `closing`) or, if `reports_position` is supported, a numeric value representing the position. In a JSON format with variables `state` and `position` both values can received together. A "None" state value resets to an `unknown` state. An empty string is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self

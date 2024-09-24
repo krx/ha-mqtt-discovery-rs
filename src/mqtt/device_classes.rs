@@ -399,12 +399,23 @@ pub enum UpdateDeviceClass {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
+pub enum HumidifierDeviceClass {
+    /// Adds humidity to the air around it.
+    #[serde(rename = "Humidifier")]
+    Humidifier,
+
+    /// Removes humidity from the air around it.
+    #[serde(rename = "Dehumidifier")]
+    Dehumidifier,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum SwitchDeviceClass {
     /// Generic switch. This is the default and doesn't need to be set.
     #[serde(rename = "None")]
     None,
 
-    /// This switch, switches a power outlet.
+    /// A switch for a power outlet.
     #[serde(rename = "outlet")]
     Outlet,
 

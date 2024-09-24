@@ -24,7 +24,7 @@ use serde_derive::Serialize;
 ///
 /// Optimistic mode can be forced, even if the `state_topic` is available. Try to enable it, if experiencing incorrect switch operation.
 ///
-/// To enable this switch in your installation, add the following to your `configuration.yaml` file:
+/// To enable this switch in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -70,6 +70,10 @@ use serde_derive::Serialize;
 ///   description: The MQTT topic subscribed to receive availability (online/offline) updates. Must not be used together with `availability`.
 ///   required: false
 ///   type: string
+/// command_template:
+///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The switch command template accepts the parameters `value`. The `value` parameter will contain the configured value for either `payload_on` or `payload_off`.
+///   required: false
+///   type: template
 /// command_topic:
 ///   description: The MQTT topic to publish commands to change the switch state.
 ///   required: true
@@ -101,6 +105,10 @@ use serde_derive::Serialize;
 ///       type: string
 ///     model:
 ///       description: The model of the device.
+///       required: false
+///       type: string
+///     model_id:
+///       description: The model identifier of the device.
 ///       required: false
 ///       type: string
 ///     name:
@@ -208,7 +216,7 @@ use serde_derive::Serialize;
 ///   type: string
 ///   default: "`payload_on` if defined, else ON"
 /// state_topic:
-///   description: The MQTT topic subscribed to receive state updates.
+///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// unique_id:
@@ -221,11 +229,9 @@ use serde_derive::Serialize;
 ///   type: template
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
-///
+/// {% important %}
 /// Make sure that your topic matches exactly. `some-topic/` and `some-topic` are different topics.
-///
-/// </div>
+/// {% endimportant %}
 ///
 /// ## Examples
 ///
@@ -318,6 +324,10 @@ pub struct Switch {
     #[serde(rename = "ent_cat", skip_serializing_if = "Option::is_none")]
     pub entity_category: Option<EntityCategory>,
 
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The switch command template accepts the parameters `value`. The `value` parameter will contain the configured value for either `payload_on` or `payload_off`.
+    #[serde(rename = "cmd_tpl", skip_serializing_if = "Option::is_none")]
+    pub command_template: Option<String>,
+
     /// The MQTT topic to publish commands to change the switch state.
     #[serde(rename = "cmd_t")]
     pub command_topic: String,
@@ -382,7 +392,7 @@ pub struct Switch {
     #[serde(rename = "stat_on", skip_serializing_if = "Option::is_none")]
     pub state_on: Option<String>,
 
-    /// The MQTT topic subscribed to receive state updates.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -424,6 +434,12 @@ impl Switch {
     /// Defines how HA will check for entity availability.
     pub fn availability(mut self, availability: Availability) -> Self {
         self.availability = availability;
+        self
+    }
+
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The switch command template accepts the parameters `value`. The `value` parameter will contain the configured value for either `payload_on` or `payload_off`.
+    pub fn command_template<T: Into<String>>(mut self, command_template: T) -> Self {
+        self.command_template = Some(command_template.into());
         self
     }
 
@@ -526,7 +542,7 @@ impl Switch {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self

@@ -23,7 +23,8 @@ use serde_derive::Serialize;
 ///
 /// Optimistic mode can be forced even if a `state_topic` is available. Try to enable it if you are experiencing incorrect fan operation.
 ///
-/// To enable MQTT fans in your installation, add the following to your `configuration.yaml` file:
+/// To enable MQTT fans in your installation, add the following to your {% term "`configuration.yaml`" %} file.
+/// {% include integrations/restart_ha_after_config_inclusion.md %}
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -104,6 +105,10 @@ use serde_derive::Serialize;
 ///       type: string
 ///     model:
 ///       description: The model of the device.
+///       required: false
+///       type: string
+///     model_id:
+///       description: The model identifier of the device.
 ///       required: false
 ///       type: string
 ///     name:
@@ -296,7 +301,7 @@ use serde_derive::Serialize;
 ///   type: integer
 ///   default: 1
 /// state_topic:
-///   description: The MQTT topic subscribed to receive state updates.
+///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// state_value_template:
@@ -309,11 +314,11 @@ use serde_derive::Serialize;
 ///   type: string
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
+/// {% important %}
 ///
 /// Make sure that your topics match exactly. `some-topic/` and `some-topic` are different topics.
 ///
-/// </div>
+/// {% endimportant %}
 ///
 /// ## Examples
 ///
@@ -571,7 +576,7 @@ pub struct Fan {
     #[serde(rename = "spd_rng_min", skip_serializing_if = "Option::is_none")]
     pub speed_range_min: Option<i32>,
 
-    /// The MQTT topic subscribed to receive state updates.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -880,7 +885,7 @@ impl Fan {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self

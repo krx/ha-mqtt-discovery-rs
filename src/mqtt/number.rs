@@ -20,7 +20,7 @@ use serde_derive::Serialize;
 ///
 /// ## Configuration
 ///
-/// To enable MQTT Number in your installation, add the following to your `configuration.yaml` file:
+/// To enable MQTT Number in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -93,6 +93,10 @@ use serde_derive::Serialize;
 ///       type: string
 ///     model:
 ///       description: The model of the device.
+///       required: false
+///       type: string
+///     model_id:
+///       description: The model identifier of the device.
 ///       required: false
 ///       type: string
 ///     name:
@@ -189,7 +193,7 @@ use serde_derive::Serialize;
 ///   type: boolean
 ///   default: false
 /// state_topic:
-///   description: The MQTT topic subscribed to receive number values.
+///   description: The MQTT topic subscribed to receive number values. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// step:
@@ -211,11 +215,9 @@ use serde_derive::Serialize;
 ///   type: template
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
-///
+/// {% important %}
 /// Make sure that your topic matches exactly. `some-topic/` and `some-topic` are different topics.
-///
-/// </div>
+/// {% endimportant %}
 ///
 #[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct Number {
@@ -308,7 +310,7 @@ pub struct Number {
     #[serde(rename = "ret", skip_serializing_if = "Option::is_none")]
     pub retain: Option<bool>,
 
-    /// The MQTT topic subscribed to receive number values.
+    /// The MQTT topic subscribed to receive number values. An empty payload is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -466,7 +468,7 @@ impl Number {
         self
     }
 
-    /// The MQTT topic subscribed to receive number values.
+    /// The MQTT topic subscribed to receive number values. An empty payload is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self

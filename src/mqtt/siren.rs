@@ -23,7 +23,7 @@ use serde_derive::Serialize;
 ///
 /// Optimistic mode can be forced, even if the `state_topic` is available. Try to enable it, if experiencing incorrect operation.
 ///
-/// To enable this siren in your installation, add the following to your `configuration.yaml` file:
+/// To enable this siren in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -74,16 +74,16 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: list
 /// command_template:
-///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on service parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
+///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on action parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
 ///   required: false
 ///   type: template
 /// command_off_template:
-///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic` when the siren turn off service is called. By default `command_template` will be used as template for service turn off. The variable `value` will be assigned with the configured `payload_off` setting.
+///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic` when the siren turn off action is called. By default `command_template` will be used as template for action turn off. The variable `value` will be assigned with the configured `payload_off` setting.
 ///   required: false
 ///   type: template
 /// command_topic:
 ///   description: >
-///     The MQTT topic to publish commands to change the siren state. Without command templates, a default JSON payload like `{"state":"ON", "tone": "bell", "duration": 10, "volume_level": 0.5 }` is published. When the siren turn on service is called, the startup parameters will be added to the JSON payload. The `state` value of the JSON payload will be set to the the `payload_on` or `payload_off` configured payload.
+///     The MQTT topic to publish commands to change the siren state. Without command templates, a default JSON payload like `{"state":"ON", "tone": "bell", "duration": 10, "volume_level": 0.5 }` is published. When the siren turn on action is performed, the startup parameters will be added to the JSON payload. The `state` value of the JSON payload will be set to the the `payload_on` or `payload_off` configured payload.
 ///   required: false
 ///   type: string
 /// device:
@@ -113,6 +113,10 @@ use serde_derive::Serialize;
 ///       type: string
 ///     model:
 ///       description: The model of the device.
+///       required: false
+///       type: string
+///     model_id:
+///       description: The model identifier of the device.
 ///       required: false
 ///       type: string
 ///     name:
@@ -216,7 +220,7 @@ use serde_derive::Serialize;
 ///   type: string
 ///   default: "`payload_on` if defined, else `'ON'`"
 /// state_topic:
-///   description: "The MQTT topic subscribed to receive state updates. The state update may be either JSON or a simple string. When a JSON payload is detected, the `state` value of the JSON payload should supply the `payload_on` or `payload_off` defined payload to turn the siren on or off. Additionally, the state attributes `duration`, `tone` and `volume_level` can be updated. Use `value_template` to transform the received state udpate to a compliant JSON payload. Attributes will only be set if the function is supported by the device and a valid value is supplied. When a non JSON payload is detected, it should be either of the `payload_on` or `payload_off` defined payloads or `None` to reset the siren's state to `unknown`. The initial state will be `unknown`. The state will be reset to `unknown` if a `None` payload or `null` JSON value is received as a state update."
+///   description: "The MQTT topic subscribed to receive state updates. The state update may be either JSON or a simple string. When a JSON payload is detected, the `state` value of the JSON payload should supply the `payload_on` or `payload_off` defined payload to turn the siren on or off. Additionally, the state attributes `duration`, `tone` and `volume_level` can be updated. Use `value_template` to transform the received state update to a compliant JSON payload. Attributes will only be set if the function is supported by the device and a valid value is supplied. When a non JSON payload is detected, it should be either of the `payload_on` or `payload_off` defined payloads or `None` to reset the siren's state to `unknown`. The initial state will be `unknown`. The state will be reset to `unknown` if a `None` payload or `null` JSON value is received as a state update."
 ///   required: false
 ///   type: string
 /// state_value_template:
@@ -224,12 +228,12 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// support_duration:
-///   description: Set to `true` if the MQTT siren supports the `duration` service turn on parameter and enables the `duration` state attribute.
+///   description: Set to `true` if the MQTT siren supports the `duration` turn on action parameter and enables the `duration` state attribute.
 ///   required: false
 ///   type: boolean
 ///   default: true
 /// support_volume_set:
-///   description: Set to `true` if the MQTT siren supports the `volume_set` service turn on parameter and enables the `volume_level` state attribute.
+///   description: Set to `true` if the MQTT siren supports the `volume_set` turn on action parameter and enables the `volume_level` state attribute.
 ///   required: false
 ///   type: boolean
 ///   default: true
@@ -239,11 +243,9 @@ use serde_derive::Serialize;
 ///   type: string
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
-///
+/// {% important %}
 /// Make sure that your topic matches exactly. `some-topic/` and `some-topic` are different topics.
-///
-/// </div>
+/// {% endimportant %}
 ///
 /// ## Examples
 ///
@@ -337,15 +339,15 @@ pub struct Siren {
     #[serde(rename = "av_tones", skip_serializing_if = "Option::is_none")]
     pub available_tones: Option<Vec<String>>,
 
-    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on service parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on action parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
     #[serde(rename = "cmd_tpl", skip_serializing_if = "Option::is_none")]
     pub command_template: Option<String>,
 
-    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic` when the siren turn off service is called. By default `command_template` will be used as template for service turn off. The variable `value` will be assigned with the configured `payload_off` setting.
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic` when the siren turn off action is called. By default `command_template` will be used as template for action turn off. The variable `value` will be assigned with the configured `payload_off` setting.
     #[serde(rename = "cmd_off_tpl", skip_serializing_if = "Option::is_none")]
     pub command_off_template: Option<String>,
 
-    /// The MQTT topic to publish commands to change the siren state. Without command templates, a default JSON payload like `{"state":"ON", "tone": "bell", "duration": 10, "volume_level": 0.5 }` is published. When the siren turn on service is called, the startup parameters will be added to the JSON payload. The `state` value of the JSON payload will be set to the the `payload_on` or `payload_off` configured payload.
+    /// The MQTT topic to publish commands to change the siren state. Without command templates, a default JSON payload like `{"state":"ON", "tone": "bell", "duration": 10, "volume_level": 0.5 }` is published. When the siren turn on action is performed, the startup parameters will be added to the JSON payload. The `state` value of the JSON payload will be set to the the `payload_on` or `payload_off` configured payload.
     ///
     #[serde(rename = "cmd_t", skip_serializing_if = "Option::is_none")]
     pub command_topic: Option<String>,
@@ -406,7 +408,7 @@ pub struct Siren {
     #[serde(rename = "stat_on", skip_serializing_if = "Option::is_none")]
     pub state_on: Option<String>,
 
-    /// The MQTT topic subscribed to receive state updates. The state update may be either JSON or a simple string. When a JSON payload is detected, the `state` value of the JSON payload should supply the `payload_on` or `payload_off` defined payload to turn the siren on or off. Additionally, the state attributes `duration`, `tone` and `volume_level` can be updated. Use `value_template` to transform the received state udpate to a compliant JSON payload. Attributes will only be set if the function is supported by the device and a valid value is supplied. When a non JSON payload is detected, it should be either of the `payload_on` or `payload_off` defined payloads or `None` to reset the siren's state to `unknown`. The initial state will be `unknown`. The state will be reset to `unknown` if a `None` payload or `null` JSON value is received as a state update.
+    /// The MQTT topic subscribed to receive state updates. The state update may be either JSON or a simple string. When a JSON payload is detected, the `state` value of the JSON payload should supply the `payload_on` or `payload_off` defined payload to turn the siren on or off. Additionally, the state attributes `duration`, `tone` and `volume_level` can be updated. Use `value_template` to transform the received state update to a compliant JSON payload. Attributes will only be set if the function is supported by the device and a valid value is supplied. When a non JSON payload is detected, it should be either of the `payload_on` or `payload_off` defined payloads or `None` to reset the siren's state to `unknown`. The initial state will be `unknown`. The state will be reset to `unknown` if a `None` payload or `null` JSON value is received as a state update.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -414,11 +416,11 @@ pub struct Siren {
     #[serde(rename = "stat_val_tpl", skip_serializing_if = "Option::is_none")]
     pub state_value_template: Option<String>,
 
-    /// Set to `true` if the MQTT siren supports the `duration` service turn on parameter and enables the `duration` state attribute.
+    /// Set to `true` if the MQTT siren supports the `duration` turn on action parameter and enables the `duration` state attribute.
     #[serde(rename = "sup_dur", skip_serializing_if = "Option::is_none")]
     pub support_duration: Option<bool>,
 
-    /// Set to `true` if the MQTT siren supports the `volume_set` service turn on parameter and enables the `volume_level` state attribute.
+    /// Set to `true` if the MQTT siren supports the `volume_set` turn on action parameter and enables the `volume_level` state attribute.
     #[serde(rename = "sup_vol", skip_serializing_if = "Option::is_none")]
     pub support_volume_set: Option<bool>,
 
@@ -465,19 +467,19 @@ impl Siren {
         self
     }
 
-    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on service parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic`. The variable `value` will be assigned with the configured `payload_on` or `payload_off` setting. The siren turn on action parameters `tone`, `volume_level` or `duration` can be used as variables in the template. When operation in optimistic mode the corresponding state attributes will be set. Turn on parameters will be filtered if a device misses the support.
     pub fn command_template<T: Into<String>>(mut self, command_template: T) -> Self {
         self.command_template = Some(command_template.into());
         self
     }
 
-    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic` when the siren turn off service is called. By default `command_template` will be used as template for service turn off. The variable `value` will be assigned with the configured `payload_off` setting.
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate a custom payload to send to `command_topic` when the siren turn off action is called. By default `command_template` will be used as template for action turn off. The variable `value` will be assigned with the configured `payload_off` setting.
     pub fn command_off_template<T: Into<String>>(mut self, command_off_template: T) -> Self {
         self.command_off_template = Some(command_off_template.into());
         self
     }
 
-    /// The MQTT topic to publish commands to change the siren state. Without command templates, a default JSON payload like `{"state":"ON", "tone": "bell", "duration": 10, "volume_level": 0.5 }` is published. When the siren turn on service is called, the startup parameters will be added to the JSON payload. The `state` value of the JSON payload will be set to the the `payload_on` or `payload_off` configured payload.
+    /// The MQTT topic to publish commands to change the siren state. Without command templates, a default JSON payload like `{"state":"ON", "tone": "bell", "duration": 10, "volume_level": 0.5 }` is published. When the siren turn on action is performed, the startup parameters will be added to the JSON payload. The `state` value of the JSON payload will be set to the the `payload_on` or `payload_off` configured payload.
     ///
     pub fn command_topic<T: Into<String>>(mut self, command_topic: T) -> Self {
         self.command_topic = Some(command_topic.into());
@@ -571,7 +573,7 @@ impl Siren {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates. The state update may be either JSON or a simple string. When a JSON payload is detected, the `state` value of the JSON payload should supply the `payload_on` or `payload_off` defined payload to turn the siren on or off. Additionally, the state attributes `duration`, `tone` and `volume_level` can be updated. Use `value_template` to transform the received state udpate to a compliant JSON payload. Attributes will only be set if the function is supported by the device and a valid value is supplied. When a non JSON payload is detected, it should be either of the `payload_on` or `payload_off` defined payloads or `None` to reset the siren's state to `unknown`. The initial state will be `unknown`. The state will be reset to `unknown` if a `None` payload or `null` JSON value is received as a state update.
+    /// The MQTT topic subscribed to receive state updates. The state update may be either JSON or a simple string. When a JSON payload is detected, the `state` value of the JSON payload should supply the `payload_on` or `payload_off` defined payload to turn the siren on or off. Additionally, the state attributes `duration`, `tone` and `volume_level` can be updated. Use `value_template` to transform the received state update to a compliant JSON payload. Attributes will only be set if the function is supported by the device and a valid value is supplied. When a non JSON payload is detected, it should be either of the `payload_on` or `payload_off` defined payloads or `None` to reset the siren's state to `unknown`. The initial state will be `unknown`. The state will be reset to `unknown` if a `None` payload or `null` JSON value is received as a state update.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self
@@ -583,13 +585,13 @@ impl Siren {
         self
     }
 
-    /// Set to `true` if the MQTT siren supports the `duration` service turn on parameter and enables the `duration` state attribute.
+    /// Set to `true` if the MQTT siren supports the `duration` turn on action parameter and enables the `duration` state attribute.
     pub fn support_duration(mut self, support_duration: bool) -> Self {
         self.support_duration = Some(support_duration);
         self
     }
 
-    /// Set to `true` if the MQTT siren supports the `volume_set` service turn on parameter and enables the `volume_level` state attribute.
+    /// Set to `true` if the MQTT siren supports the `volume_set` turn on action parameter and enables the `volume_level` state attribute.
     pub fn support_volume_set(mut self, support_volume_set: bool) -> Self {
         self.support_volume_set = Some(support_volume_set);
         self

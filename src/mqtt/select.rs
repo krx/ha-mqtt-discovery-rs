@@ -17,7 +17,7 @@ use serde_derive::Serialize;
 ///
 /// ## Configuration
 ///
-/// To enable MQTT Select in your installation, add the following to your `configuration.yaml` file:
+/// To enable MQTT Select in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -104,6 +104,10 @@ use serde_derive::Serialize;
 ///       description: The model of the device.
 ///       required: false
 ///       type: string
+///     model_id:
+///       description: The model identifier of the device.
+///       required: false
+///       type: string
 ///     name:
 ///       description: The name of the device.
 ///       required: false
@@ -178,7 +182,7 @@ use serde_derive::Serialize;
 ///   type: boolean
 ///   default: false
 /// state_topic:
-///   description: The MQTT topic subscribed to receive update of the selected option.
+///   description: The MQTT topic subscribed to receive update of the selected option. A "None" payload resets to an `unknown` state. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// unique_id:
@@ -191,11 +195,9 @@ use serde_derive::Serialize;
 ///   type: template
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
-///
+/// {% important %}
 /// Make sure that your topic matches exactly. `some-topic/` and `some-topic` are different topics.
-///
-/// </div>
+/// {% endimportant %}
 ///
 #[derive(Clone, Debug, PartialEq, Serialize, Default)]
 pub struct Select {
@@ -272,7 +274,7 @@ pub struct Select {
     #[serde(rename = "ret", skip_serializing_if = "Option::is_none")]
     pub retain: Option<bool>,
 
-    /// The MQTT topic subscribed to receive update of the selected option.
+    /// The MQTT topic subscribed to receive update of the selected option. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -398,7 +400,7 @@ impl Select {
         self
     }
 
-    /// The MQTT topic subscribed to receive update of the selected option.
+    /// The MQTT topic subscribed to receive update of the selected option. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self

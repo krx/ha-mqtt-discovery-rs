@@ -26,7 +26,7 @@ use serde_derive::Serialize;
 /// It's mandatory for locks to support `lock` and `unlock`. A lock may optionally support `open`, (e.g. to open the bolt in addition to the latch), in this case, `payload_open` is required in the configuration. If the lock is in optimistic mode, it will change states to `unlocked` when handling the `open` command.
 ///
 /// An MQTT lock can also report the intermediate states `unlocking`, `locking` or `jammed` if the motor reports a jammed state.
-/// To enable MQTT locks in your installation, add the following to your `configuration.yaml` file:
+/// To enable MQTT locks in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -73,11 +73,11 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 /// code_format:
-///   description: A regular expression to validate a supplied code when it is set during the service call to `open`, `lock` or `unlock` the MQTT lock.
+///   description: A regular expression to validate a supplied code when it is set during the action to `open`, `lock` or `unlock` the MQTT lock.
 ///   required: false
 ///   type: string
 /// command_template:
-///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The lock command template accepts the parameters `value` and `code`. The `value` parameter will contain the configured value for either `payload_open`, `payload_lock` or `payload_unlock`. The `code` parameter is set during the service call to `open`, `lock` or `unlock` the MQTT lock and will be set `None` if no code was passed.
+///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The lock command template accepts the parameters `value` and `code`. The `value` parameter will contain the configured value for either `payload_open`, `payload_lock` or `payload_unlock`. The `code` parameter is set during the action to `open`, `lock` or `unlock` the MQTT lock and will be set `None` if no code was passed.
 ///   required: false
 ///   type: template
 /// command_topic:
@@ -111,6 +111,10 @@ use serde_derive::Serialize;
 ///       type: string
 ///     model:
 ///       description: 'The model of the device.'
+///       required: false
+///       type: string
+///     model_id:
+///       description: The model identifier of the device.
 ///       required: false
 ///       type: string
 ///     name:
@@ -228,7 +232,7 @@ use serde_derive::Serialize;
 ///   type: string
 ///   default: LOCKING
 /// state_topic:
-///   description: The MQTT topic subscribed to receive state updates. It accepts states configured with `state_jammed`, `state_locked`, `state_unlocked`, `state_locking` or `state_unlocking`.
+///   description: The MQTT topic subscribed to receive state updates. It accepts states configured with `state_jammed`, `state_locked`, `state_unlocked`, `state_locking` or `state_unlocking`. A "None" payload resets to an `unknown` state. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// state_unlocked:
@@ -251,11 +255,9 @@ use serde_derive::Serialize;
 ///   type: template
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
-///
+/// {% important %}
 /// Make sure that your topics match exactly. `some-topic/` and `some-topic` are different topics.
-///
-/// </div>
+/// {% endimportant %}
 ///
 /// ## Examples
 ///
@@ -323,11 +325,11 @@ pub struct Lock {
     #[serde(rename = "ent_cat", skip_serializing_if = "Option::is_none")]
     pub entity_category: Option<EntityCategory>,
 
-    /// A regular expression to validate a supplied code when it is set during the service call to `open`, `lock` or `unlock` the MQTT lock.
+    /// A regular expression to validate a supplied code when it is set during the action to `open`, `lock` or `unlock` the MQTT lock.
     #[serde(rename = "code_format", skip_serializing_if = "Option::is_none")]
     pub code_format: Option<String>,
 
-    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The lock command template accepts the parameters `value` and `code`. The `value` parameter will contain the configured value for either `payload_open`, `payload_lock` or `payload_unlock`. The `code` parameter is set during the service call to `open`, `lock` or `unlock` the MQTT lock and will be set `None` if no code was passed.
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The lock command template accepts the parameters `value` and `code`. The `value` parameter will contain the configured value for either `payload_open`, `payload_lock` or `payload_unlock`. The `code` parameter is set during the action to `open`, `lock` or `unlock` the MQTT lock and will be set `None` if no code was passed.
     #[serde(rename = "cmd_tpl", skip_serializing_if = "Option::is_none")]
     pub command_template: Option<String>,
 
@@ -403,7 +405,7 @@ pub struct Lock {
     #[serde(rename = "stat_locking", skip_serializing_if = "Option::is_none")]
     pub state_locking: Option<String>,
 
-    /// The MQTT topic subscribed to receive state updates. It accepts states configured with `state_jammed`, `state_locked`, `state_unlocked`, `state_locking` or `state_unlocking`.
+    /// The MQTT topic subscribed to receive state updates. It accepts states configured with `state_jammed`, `state_locked`, `state_unlocked`, `state_locking` or `state_unlocking`. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -456,13 +458,13 @@ impl Lock {
         self
     }
 
-    /// A regular expression to validate a supplied code when it is set during the service call to `open`, `lock` or `unlock` the MQTT lock.
+    /// A regular expression to validate a supplied code when it is set during the action to `open`, `lock` or `unlock` the MQTT lock.
     pub fn code_format<T: Into<String>>(mut self, code_format: T) -> Self {
         self.code_format = Some(code_format.into());
         self
     }
 
-    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The lock command template accepts the parameters `value` and `code`. The `value` parameter will contain the configured value for either `payload_open`, `payload_lock` or `payload_unlock`. The `code` parameter is set during the service call to `open`, `lock` or `unlock` the MQTT lock and will be set `None` if no code was passed.
+    /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `command_topic`. The lock command template accepts the parameters `value` and `code`. The `value` parameter will contain the configured value for either `payload_open`, `payload_lock` or `payload_unlock`. The `code` parameter is set during the action to `open`, `lock` or `unlock` the MQTT lock and will be set `None` if no code was passed.
     pub fn command_template<T: Into<String>>(mut self, command_template: T) -> Self {
         self.command_template = Some(command_template.into());
         self
@@ -579,7 +581,7 @@ impl Lock {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates. It accepts states configured with `state_jammed`, `state_locked`, `state_unlocked`, `state_locking` or `state_unlocking`.
+    /// The MQTT topic subscribed to receive state updates. It accepts states configured with `state_jammed`, `state_locked`, `state_unlocked`, `state_locking` or `state_unlocking`. A "None" payload resets to an `unknown` state. An empty payload is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self

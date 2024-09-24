@@ -89,6 +89,10 @@ use serde_derive::Serialize;
 ///       description: The model of the device.
 ///       required: false
 ///       type: string
+///     model_id:
+///       description: The model identifier of the device.
+///       required: false
+///       type: string
 ///     name:
 ///       description: The name of the device.
 ///       required: false
@@ -273,7 +277,7 @@ use serde_derive::Serialize;
 /// }
 /// ```
 ///
-/// Service trigger example:
+/// Action trigger example:
 ///
 /// ```yaml
 /// - alias: "Push command based on sensor"
@@ -281,7 +285,7 @@ use serde_derive::Serialize;
 ///       - platform: state
 ///         entity_id: sensor.sensor
 ///     action:
-///       service: vacuum.send_command
+///       action: vacuum.send_command
 ///       target:
 ///         entity_id: vacuum.vacuum_entity
 ///       data:

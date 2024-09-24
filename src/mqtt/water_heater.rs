@@ -19,7 +19,7 @@ use serde_derive::Serialize;
 ///
 /// ## Configuration
 ///
-/// To enable this water heater platform in your installation, first add the following to your `configuration.yaml` file:
+/// To enable this water heater platform in your installation, first add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -103,6 +103,10 @@ use serde_derive::Serialize;
 ///       description: 'The model of the device.'
 ///       required: false
 ///       type: string
+///     model_id:
+///       description: The model identifier of the device.
+///       required: false
+///       type: string
 ///     name:
 ///       description: 'The name of the device.'
 ///       required: false
@@ -174,7 +178,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// mode_state_topic:
-///   description: The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below).
+///   description: The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below). A "None" payload resets to an `unknown` state. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// modes:
@@ -221,7 +225,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// power_command_topic:
-///   description: The MQTT topic to publish commands to change the water heater power state. Sends the payload configured with `payload_on` if the water heater is turned on via the `water_heater.turn_on`, or the payload configured with `payload_off` if the water heater is turned off via the `water_heater.turn_off` service. Note that `optimistic` mode is not supported through `water_heater.turn_on` and `water_heater.turn_off` services. When called, these services will send a power command to the device but will not optimistically update the state of the water heater. The water heater device should report its state back via `mode_state_topic`.
+///   description: The MQTT topic to publish commands to change the water heater power state. Sends the payload configured with `payload_on` if the water heater is turned on via the `water_heater.turn_on`, or the payload configured with `payload_off` if the water heater is turned off via the `water_heater.turn_off` action. Note that `optimistic` mode is not supported through `water_heater.turn_on` and `water_heater.turn_off` actions. When called, these actions will send a power command to the device but will not optimistically update the state of the water heater. The water heater device should report its state back via `mode_state_topic`.
 ///   required: false
 ///   type: string
 /// precision:
@@ -401,7 +405,7 @@ pub struct WaterHeater {
     #[serde(rename = "mode_stat_tpl", skip_serializing_if = "Option::is_none")]
     pub mode_state_template: Option<String>,
 
-    /// The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below).
+    /// The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below). A "None" payload resets to an `unknown` state. An empty payload is ignored.
     #[serde(rename = "mode_stat_t", skip_serializing_if = "Option::is_none")]
     pub mode_state_topic: Option<String>,
 
@@ -436,7 +440,7 @@ pub struct WaterHeater {
     )]
     pub power_command_template: Option<String>,
 
-    /// The MQTT topic to publish commands to change the water heater power state. Sends the payload configured with `payload_on` if the water heater is turned on via the `water_heater.turn_on`, or the payload configured with `payload_off` if the water heater is turned off via the `water_heater.turn_off` service. Note that `optimistic` mode is not supported through `water_heater.turn_on` and `water_heater.turn_off` services. When called, these services will send a power command to the device but will not optimistically update the state of the water heater. The water heater device should report its state back via `mode_state_topic`.
+    /// The MQTT topic to publish commands to change the water heater power state. Sends the payload configured with `payload_on` if the water heater is turned on via the `water_heater.turn_on`, or the payload configured with `payload_off` if the water heater is turned off via the `water_heater.turn_off` action. Note that `optimistic` mode is not supported through `water_heater.turn_on` and `water_heater.turn_off` actions. When called, these actions will send a power command to the device but will not optimistically update the state of the water heater. The water heater device should report its state back via `mode_state_topic`.
     #[serde(
         rename = "power_command_topic",
         skip_serializing_if = "Option::is_none"
@@ -603,7 +607,7 @@ impl WaterHeater {
         self
     }
 
-    /// The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below).
+    /// The MQTT topic to subscribe for changes of the water heater operation mode. If this is not set, the operation mode works in optimistic mode (see below). A "None" payload resets to an `unknown` state. An empty payload is ignored.
     pub fn mode_state_topic<T: Into<String>>(mut self, mode_state_topic: T) -> Self {
         self.mode_state_topic = Some(mode_state_topic.into());
         self
@@ -651,7 +655,7 @@ impl WaterHeater {
         self
     }
 
-    /// The MQTT topic to publish commands to change the water heater power state. Sends the payload configured with `payload_on` if the water heater is turned on via the `water_heater.turn_on`, or the payload configured with `payload_off` if the water heater is turned off via the `water_heater.turn_off` service. Note that `optimistic` mode is not supported through `water_heater.turn_on` and `water_heater.turn_off` services. When called, these services will send a power command to the device but will not optimistically update the state of the water heater. The water heater device should report its state back via `mode_state_topic`.
+    /// The MQTT topic to publish commands to change the water heater power state. Sends the payload configured with `payload_on` if the water heater is turned on via the `water_heater.turn_on`, or the payload configured with `payload_off` if the water heater is turned off via the `water_heater.turn_off` action. Note that `optimistic` mode is not supported through `water_heater.turn_on` and `water_heater.turn_off` actions. When called, these actions will send a power command to the device but will not optimistically update the state of the water heater. The water heater device should report its state back via `mode_state_topic`.
     pub fn power_command_topic<T: Into<String>>(mut self, power_command_topic: T) -> Self {
         self.power_command_topic = Some(power_command_topic.into());
         self

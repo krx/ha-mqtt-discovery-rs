@@ -57,6 +57,10 @@ use serde_derive::Serialize;
 ///       description: The model of the device.
 ///       required: false
 ///       type: string
+///     model_id:
+///       description: The model identifier of the device.
+///       required: false
+///       type: string
 ///     name:
 ///       description: The name of the device.
 ///       required: false

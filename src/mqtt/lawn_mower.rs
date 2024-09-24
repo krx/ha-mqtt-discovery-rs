@@ -17,7 +17,7 @@ use serde_derive::Serialize;
 ///
 /// ## Configuration
 ///
-/// To enable MQTT lawn mower in your installation, add the following to your `configuration.yaml` file:
+/// To enable MQTT lawn mower in your installation, add the following to your {% term "`configuration.yaml`" %} file:
 ///
 /// ```yaml
 /// # Example configuration.yaml entry
@@ -101,6 +101,10 @@ use serde_derive::Serialize;
 ///       description: The model of the device.
 ///       required: false
 ///       type: string
+///     model_id:
+///       description: The model identifier of the device.
+///       required: false
+///       type: string
 ///     name:
 ///       description: The name of the device.
 ///       required: false
@@ -126,7 +130,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// dock_command_topic:
-///   description: The MQTT topic that publishes commands when the service `lawn_mower.dock` service call is executed. The value `dock` is published when the service is called. Use a `dock_command_template` to publish a custom format.
+///   description: The MQTT topic that publishes commands when the `lawn_mower.dock` action is performed. The value `dock` is published when the action is used. Use a `dock_command_template` to publish a custom format.
 ///   required: false
 ///   type: string
 /// enabled_by_default:
@@ -173,7 +177,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// pause_command_topic:
-///   description: The MQTT topic that publishes commands when the service `lawn_mower.pause` service call is executed. The value `pause` is published when the service is called. Use a `pause_command_template` to publish a custom format.
+///   description: The MQTT topic that publishes commands when the `lawn_mower.pause` action is performed. The value `pause` is published when the action is used. Use a `pause_command_template` to publish a custom format.
 ///   required: false
 ///   type: string
 /// qos:
@@ -186,7 +190,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// start_mowing_command_topic:
-///   description: The MQTT topic that publishes commands when the service `lawn_mower.start_mowing` service call is executed. The value `start_mowing` is published when the service is called. Use a `start_mowing_command_template` to publish a custom format.
+///   description: The MQTT topic that publishes commands when the `lawn_mower.start_mowing` action is performed. The value `start_mowing` is published when the action used. Use a `start_mowing_command_template` to publish a custom format.
 ///   required: false
 ///   type: string
 /// retain:
@@ -200,11 +204,9 @@ use serde_derive::Serialize;
 ///   type: string
 /// {% endconfiguration %}
 ///
-/// <div class='note warning'>
-///
+/// {% important %}
 /// Make sure that your topic matches exactly. `some-topic/` and `some-topic` are different topics.
-///
-/// </div>
+/// {% endimportant %}
 ///
 /// ## Example
 ///
@@ -273,7 +275,7 @@ pub struct LawnMower {
     )]
     pub dock_command_template: Option<String>,
 
-    /// The MQTT topic that publishes commands when the service `lawn_mower.dock` service call is executed. The value `dock` is published when the service is called. Use a `dock_command_template` to publish a custom format.
+    /// The MQTT topic that publishes commands when the `lawn_mower.dock` action is performed. The value `dock` is published when the action is used. Use a `dock_command_template` to publish a custom format.
     #[serde(rename = "dock_command_topic", skip_serializing_if = "Option::is_none")]
     pub dock_command_topic: Option<String>,
 
@@ -316,7 +318,7 @@ pub struct LawnMower {
     )]
     pub pause_command_template: Option<String>,
 
-    /// The MQTT topic that publishes commands when the service `lawn_mower.pause` service call is executed. The value `pause` is published when the service is called. Use a `pause_command_template` to publish a custom format.
+    /// The MQTT topic that publishes commands when the `lawn_mower.pause` action is performed. The value `pause` is published when the action is used. Use a `pause_command_template` to publish a custom format.
     #[serde(
         rename = "pause_command_topic",
         skip_serializing_if = "Option::is_none"
@@ -334,7 +336,7 @@ pub struct LawnMower {
     )]
     pub start_mowing_template: Option<String>,
 
-    /// The MQTT topic that publishes commands when the service `lawn_mower.start_mowing` service call is executed. The value `start_mowing` is published when the service is called. Use a `start_mowing_command_template` to publish a custom format.
+    /// The MQTT topic that publishes commands when the `lawn_mower.start_mowing` action is performed. The value `start_mowing` is published when the action used. Use a `start_mowing_command_template` to publish a custom format.
     #[serde(
         rename = "start_mowing_command_topic",
         skip_serializing_if = "Option::is_none"
@@ -400,7 +402,7 @@ impl LawnMower {
         self
     }
 
-    /// The MQTT topic that publishes commands when the service `lawn_mower.dock` service call is executed. The value `dock` is published when the service is called. Use a `dock_command_template` to publish a custom format.
+    /// The MQTT topic that publishes commands when the `lawn_mower.dock` action is performed. The value `dock` is published when the action is used. Use a `dock_command_template` to publish a custom format.
     pub fn dock_command_topic<T: Into<String>>(mut self, dock_command_topic: T) -> Self {
         self.dock_command_topic = Some(dock_command_topic.into());
         self
@@ -463,7 +465,7 @@ impl LawnMower {
         self
     }
 
-    /// The MQTT topic that publishes commands when the service `lawn_mower.pause` service call is executed. The value `pause` is published when the service is called. Use a `pause_command_template` to publish a custom format.
+    /// The MQTT topic that publishes commands when the `lawn_mower.pause` action is performed. The value `pause` is published when the action is used. Use a `pause_command_template` to publish a custom format.
     pub fn pause_command_topic<T: Into<String>>(mut self, pause_command_topic: T) -> Self {
         self.pause_command_topic = Some(pause_command_topic.into());
         self
@@ -481,7 +483,7 @@ impl LawnMower {
         self
     }
 
-    /// The MQTT topic that publishes commands when the service `lawn_mower.start_mowing` service call is executed. The value `start_mowing` is published when the service is called. Use a `start_mowing_command_template` to publish a custom format.
+    /// The MQTT topic that publishes commands when the `lawn_mower.start_mowing` action is performed. The value `start_mowing` is published when the action used. Use a `start_mowing_command_template` to publish a custom format.
     pub fn start_mowing_command_topic<T: Into<String>>(
         mut self,
         start_mowing_command_topic: T,
