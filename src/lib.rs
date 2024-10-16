@@ -129,7 +129,7 @@ pub enum Entity {
 }
 
 impl Entity {
-    fn get_component_name(&self) -> &str {
+    pub fn get_component_name(&self) -> &str {
         match self {
             Entity::AlarmControlPanel(_) => "alarm_control_panel",
             Entity::BinarySensor(_) => "binary_sensor",
@@ -162,7 +162,7 @@ impl Entity {
         }
     }
 
-    fn get_attributes(&self) -> Result<Value> {
+    pub fn get_attributes(&self) -> Result<Value> {
         let attributes = match self {
             Entity::AlarmControlPanel(alarm_control_panel) => {
                 serde_json::to_value(alarm_control_panel)?
