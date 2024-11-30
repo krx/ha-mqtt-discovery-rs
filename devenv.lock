@@ -74,10 +74,10 @@
     "homeassistant-docs": {
       "flake": false,
       "locked": {
-        "lastModified": 1727190716,
+        "lastModified": 1732887744,
         "owner": "home-assistant",
         "repo": "home-assistant.io",
-        "rev": "7bb9c1f00aef60d02ff4ca979f6829be41e4747e",
+        "rev": "dcf3f1672c41d194802a8685fc4a75124a0aa58e",
         "type": "github"
       },
       "original": {

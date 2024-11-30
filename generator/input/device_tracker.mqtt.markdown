@@ -127,9 +127,12 @@ json_attributes_topic:
   description: |
     The MQTT topic subscribed to receive a JSON dictionary message containing device tracker attributes.
     This topic can be used to set the location of the device tracker under the following conditions:
-    - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).\n
-    - If the device tracker is within a configured [zone](/integrations/zone/).\n
-    If these conditions are met, it is not required to configure `state_topic`.\n\n
+
+    - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).
+    - If the device tracker is within a configured [zone](/integrations/zone/).
+
+    If these conditions are met, it is not required to configure `state_topic`.
+
     Be aware that any location message received at `state_topic`  overrides the location received via `json_attributes_topic` until a message configured with `payload_reset` is received at `state_topic`. For a more generic usage example of the `json_attributes_topic`, refer to the [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration) documentation.
   required: false
   type: string
@@ -166,6 +169,10 @@ payload_reset:
   required: false
   type: string
   default: '"None"'
+platform:
+  description: Must be `device_tracker`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+  required: true
+  type: string
 qos:
   description: The maximum QoS level to be used when receiving and publishing messages.
   required: false
@@ -176,11 +183,11 @@ source_type:
   required: false
   type: string
 state_topic:
-  description: The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored.
+  description: The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored. Valid payloads are `not_home`, `home` or any other custom location or zone name. Payloads for `not_home`, `home` can be overridden with the `payload_not_home`and `payload_home` config options.
   required: false
   type: string
 unique_id:
-  description: "An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception."
+  description: "An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery."
   required: false
   type: string
 value_template:
