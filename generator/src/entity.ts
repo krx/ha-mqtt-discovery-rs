@@ -52,7 +52,7 @@ export function generateMqttEntityModel(
   const docContent = readFileSync(docFile).toString();
 
   const modelDescriptorYaml =
-    /{% configuration %}([^]*){% endconfiguration %}/gm.exec(docContent);
+    /{% configuration %}([^]*?){% endconfiguration %}/gm.exec(docContent);
   try {
     const modelDescriptor = YAML.parse(modelDescriptorYaml!![1]);
     const entries = Object.entries(modelDescriptor)
