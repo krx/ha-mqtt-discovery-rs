@@ -208,7 +208,7 @@ pub enum NumberDeviceClass {
     #[serde(rename = "sound_pressure")]
     SoundPressure,
 
-    /// Generic speed in ft/s, in/d, in/h, km/h, kn, m/s, mph, or mm/d
+    /// Generic speed in ft/s, in/d, in/h, in/s, km/h, kn, m/s, mph, mm/d, or mm/s
     #[serde(rename = "speed")]
     Speed,
 
@@ -492,19 +492,19 @@ pub enum SensorDeviceClass {
     #[serde(rename = "date")]
     Date,
 
-    /// Generic distance in km, m, cm, mm, mi, yd, or in
+    /// Generic distance in km, m, cm, mm, mi, nmi, yd, or in
     #[serde(rename = "distance")]
     Distance,
 
-    /// Duration in d, h, min, or s
+    /// Duration in d, h, min, s, or ms
     #[serde(rename = "duration")]
     Duration,
 
-    /// Energy in Wh, kWh, MWh, MJ, or GJ
+    /// Energy in J, kJ, MJ, GJ, Wh, kWh, MWh, cal, kcal, Mcal, or Gcal
     #[serde(rename = "energy")]
     Energy,
 
-    /// Stored energy in Wh, kWh, MWh, MJ, or GJ
+    /// Stored energy in J, kJ, MJ, GJ, Wh, kWh, MWh, cal, kcal, Mcal, or Gcal
     #[serde(rename = "energy_storage")]
     EnergyStorage,
 
@@ -604,7 +604,7 @@ pub enum SensorDeviceClass {
     #[serde(rename = "sound_pressure")]
     SoundPressure,
 
-    /// Generic speed in ft/s, in/d, in/h, km/h, kn, m/s, mph or mm/d
+    /// Generic speed in ft/s, in/d, in/h, in/s, km/h, kn, m/s, mph, mm/d, or mm/s
     #[serde(rename = "speed")]
     Speed,
 

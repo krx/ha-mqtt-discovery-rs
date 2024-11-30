@@ -137,6 +137,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// icon:
 ///   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
 ///   required: false
@@ -166,7 +170,7 @@ use serde_derive::Serialize;
 ///   required: true
 ///   type: string
 /// unique_id:
-///   description: An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception.
+///   description: An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception. Required when used with device-based discovery.
 ///   required: false
 ///   type: string
 /// {% endconfiguration %}
@@ -202,6 +206,10 @@ pub struct Camera {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
@@ -230,7 +238,7 @@ pub struct Camera {
     #[serde(rename = "t")]
     pub topic: String,
 
-    /// An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 }
@@ -279,6 +287,12 @@ impl Camera {
         self
     }
 
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
+        self
+    }
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     pub fn icon<T: Into<String>>(mut self, icon: T) -> Self {
         self.icon = Some(icon.into());
@@ -324,7 +338,7 @@ impl Camera {
         self
     }
 
-    /// An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

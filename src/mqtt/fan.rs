@@ -145,6 +145,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// icon:
 ///   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
 ///   required: false
@@ -259,6 +263,10 @@ use serde_derive::Serialize;
 ///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to extract the `percentage` value from the payload received on `percentage_state_topic`.
 ///   required: false
 ///   type: template
+/// platform:
+///   description: Must be `fan`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// preset_mode_command_template:
 ///   description: Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `preset_mode_command_topic`.
 ///   required: false
@@ -301,7 +309,7 @@ use serde_derive::Serialize;
 ///   type: integer
 ///   default: 1
 /// state_topic:
-///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. By default, valid state payloads are `OFF` and `ON`. The accepted payloads can be overridden with the `payload_off` and `payload_on` config options.
 ///   required: false
 ///   type: string
 /// state_value_template:
@@ -309,7 +317,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// unique_id:
-///   description: An ID that uniquely identifies this fan. If two fans have the same unique ID, Home Assistant will raise an exception.
+///   description: An ID that uniquely identifies this fan. If two fans have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///   required: false
 ///   type: string
 /// {% endconfiguration %}
@@ -444,6 +452,10 @@ pub struct Fan {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
@@ -540,6 +552,10 @@ pub struct Fan {
     #[serde(rename = "pct_val_tpl", skip_serializing_if = "Option::is_none")]
     pub percentage_value_template: Option<String>,
 
+    /// Must be `fan`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `preset_mode_command_topic`.
     #[serde(rename = "pr_mode_cmd_tpl", skip_serializing_if = "Option::is_none")]
     pub preset_mode_command_template: Option<String>,
@@ -576,7 +592,7 @@ pub struct Fan {
     #[serde(rename = "spd_rng_min", skip_serializing_if = "Option::is_none")]
     pub speed_range_min: Option<i32>,
 
-    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. By default, valid state payloads are `OFF` and `ON`. The accepted payloads can be overridden with the `payload_off` and `payload_on` config options.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -584,7 +600,7 @@ pub struct Fan {
     #[serde(rename = "stat_val_tpl", skip_serializing_if = "Option::is_none")]
     pub state_value_template: Option<String>,
 
-    /// An ID that uniquely identifies this fan. If two fans have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this fan. If two fans have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 }
@@ -642,6 +658,12 @@ impl Fan {
     /// The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
     pub fn encoding<T: Into<String>>(mut self, encoding: T) -> Self {
         self.encoding = Some(encoding.into());
+        self
+    }
+
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
         self
     }
 
@@ -822,6 +844,12 @@ impl Fan {
         self
     }
 
+    /// Must be `fan`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// Defines a [template](/docs/configuration/templating/#using-templates-with-the-mqtt-integration) to generate the payload to send to `preset_mode_command_topic`.
     pub fn preset_mode_command_template<T: Into<String>>(
         mut self,
@@ -885,7 +913,7 @@ impl Fan {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. By default, valid state payloads are `OFF` and `ON`. The accepted payloads can be overridden with the `payload_off` and `payload_on` config options.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self
@@ -897,7 +925,7 @@ impl Fan {
         self
     }
 
-    /// An ID that uniquely identifies this fan. If two fans have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this fan. If two fans have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

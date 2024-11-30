@@ -132,9 +132,12 @@ use serde_derive::Serialize;
 ///   description: |
 ///     The MQTT topic subscribed to receive a JSON dictionary message containing device tracker attributes.
 ///     This topic can be used to set the location of the device tracker under the following conditions:
-///     - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).\n
-///     - If the device tracker is within a configured [zone](/integrations/zone/).\n
-///     If these conditions are met, it is not required to configure `state_topic`.\n\n
+///
+///     - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).
+///     - If the device tracker is within a configured [zone](/integrations/zone/).
+///
+///     If these conditions are met, it is not required to configure `state_topic`.
+///
 ///     Be aware that any location message received at `state_topic`  overrides the location received via `json_attributes_topic` until a message configured with `payload_reset` is received at `state_topic`. For a more generic usage example of the `json_attributes_topic`, refer to the [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration) documentation.
 ///   required: false
 ///   type: string
@@ -171,6 +174,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: '"None"'
+/// platform:
+///   description: Must be `device_tracker`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -181,11 +188,11 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 /// state_topic:
-///   description: The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored.
+///   description: The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored. Valid payloads are `not_home`, `home` or any other custom location or zone name. Payloads for `not_home`, `home` can be overridden with the `payload_not_home`and `payload_home` config options.
 ///   required: false
 ///   type: string
 /// unique_id:
-///   description: "An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception."
+///   description: "An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery."
 ///   required: false
 ///   type: string
 /// value_template:
@@ -305,9 +312,12 @@ pub struct DeviceTracker {
 
     /// The MQTT topic subscribed to receive a JSON dictionary message containing device tracker attributes.
     /// This topic can be used to set the location of the device tracker under the following conditions:
-    /// - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).\n
-    /// - If the device tracker is within a configured [zone](/integrations/zone/).\n
-    /// If these conditions are met, it is not required to configure `state_topic`.\n\n
+    ///
+    /// - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).
+    /// - If the device tracker is within a configured [zone](/integrations/zone/).
+    ///
+    /// If these conditions are met, it is not required to configure `state_topic`.
+    ///
     /// Be aware that any location message received at `state_topic`  overrides the location received via `json_attributes_topic` until a message configured with `payload_reset` is received at `state_topic`. For a more generic usage example of the `json_attributes_topic`, refer to the [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration) documentation.
     ///
     #[serde(rename = "json_attr_t", skip_serializing_if = "Option::is_none")]
@@ -333,6 +343,10 @@ pub struct DeviceTracker {
     #[serde(rename = "pl_rst", skip_serializing_if = "Option::is_none")]
     pub payload_reset: Option<String>,
 
+    /// Must be `device_tracker`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -341,11 +355,11 @@ pub struct DeviceTracker {
     #[serde(rename = "src_type", skip_serializing_if = "Option::is_none")]
     pub source_type: Option<String>,
 
-    /// The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored. Valid payloads are `not_home`, `home` or any other custom location or zone name. Payloads for `not_home`, `home` can be overridden with the `payload_not_home`and `payload_home` config options.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
-    /// An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -403,9 +417,12 @@ impl DeviceTracker {
 
     /// The MQTT topic subscribed to receive a JSON dictionary message containing device tracker attributes.
     /// This topic can be used to set the location of the device tracker under the following conditions:
-    /// - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).\n
-    /// - If the device tracker is within a configured [zone](/integrations/zone/).\n
-    /// If these conditions are met, it is not required to configure `state_topic`.\n\n
+    ///
+    /// - If the attributes in the JSON message include `longitude`, `latitude`, and `gps_accuracy` (optional).
+    /// - If the device tracker is within a configured [zone](/integrations/zone/).
+    ///
+    /// If these conditions are met, it is not required to configure `state_topic`.
+    ///
     /// Be aware that any location message received at `state_topic`  overrides the location received via `json_attributes_topic` until a message configured with `payload_reset` is received at `state_topic`. For a more generic usage example of the `json_attributes_topic`, refer to the [MQTT sensor](/integrations/sensor.mqtt/#json-attributes-topic-configuration) documentation.
     ///
     pub fn json_attributes_topic<T: Into<String>>(mut self, json_attributes_topic: T) -> Self {
@@ -443,6 +460,12 @@ impl DeviceTracker {
         self
     }
 
+    /// Must be `device_tracker`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     pub fn qos(mut self, qos: Qos) -> Self {
         self.qos = Some(qos);
@@ -455,13 +478,13 @@ impl DeviceTracker {
         self
     }
 
-    /// The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive device tracker state changes. The states defined in `state_topic` override the location states defined by the `json_attributes_topic`. This state override is turned inactive if the `state_topic` receives a message containing `payload_reset`. The `state_topic` can only be omitted if `json_attributes_topic` is used. An empty payload is ignored. Valid payloads are `not_home`, `home` or any other custom location or zone name. Payloads for `not_home`, `home` can be overridden with the `payload_not_home`and `payload_home` config options.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self
     }
 
-    /// An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this device_tracker. If two device_trackers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

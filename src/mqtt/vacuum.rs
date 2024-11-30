@@ -179,6 +179,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: stop
+/// platform:
+///   description: Must be `vacuum`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -207,7 +211,7 @@ use serde_derive::Serialize;
 ///   type: [string, list]
 ///   default: "`start`, `stop`, `return_home`, `status`, `battery`, `clean_spot`"
 /// unique_id:
-///    description: An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception.
+///    description: An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///    required: false
 ///    type: string
 /// {% endconfiguration %}
@@ -219,7 +223,6 @@ use serde_derive::Serialize;
 /// mqtt:
 ///   - vacuum:
 ///       name: "MQTT Vacuum"
-///       schema: state
 ///       supported_features:
 ///         - start
 ///         - pause
@@ -232,7 +235,6 @@ use serde_derive::Serialize;
 ///         - fan_speed
 ///         - send_command
 ///       command_topic: "vacuum/command"
-///       state_topic: "vacuum/state"
 ///       set_fan_speed_topic: "vacuum/set_fan_speed"
 ///       fan_speed_list:
 ///         - min
@@ -281,17 +283,17 @@ use serde_derive::Serialize;
 ///
 /// ```yaml
 /// - alias: "Push command based on sensor"
-///     trigger:
-///       - platform: state
+///     triggers:
+///       - trigger: state
 ///         entity_id: sensor.sensor
-///     action:
-///       action: vacuum.send_command
-///       target:
-///         entity_id: vacuum.vacuum_entity
-///       data:
-///         command: "custom_command"
-///         params:
-///           - key: value
+///     actions:
+///       - action: vacuum.send_command
+///         target:
+///           entity_id: vacuum.vacuum_entity
+///         data:
+///           command: "custom_command"
+///           params:
+///             - key: value
 /// ```
 ///
 /// MQTT topic: `vacuum/send_command`
@@ -416,6 +418,10 @@ pub struct Vacuum {
     #[serde(rename = "pl_stop", skip_serializing_if = "Option::is_none")]
     pub payload_stop: Option<String>,
 
+    /// Must be `vacuum`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -440,7 +446,7 @@ pub struct Vacuum {
     #[serde(rename = "sup_feat", skip_serializing_if = "Option::is_none")]
     pub supported_features: Option<Vec<String>>,
 
-    /// An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 }
@@ -558,6 +564,12 @@ impl Vacuum {
         self
     }
 
+    /// Must be `vacuum`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     pub fn qos(mut self, qos: Qos) -> Self {
         self.qos = Some(qos);
@@ -594,7 +606,7 @@ impl Vacuum {
         self
     }
 
-    /// An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

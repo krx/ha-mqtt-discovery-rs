@@ -178,6 +178,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// icon:
 ///   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
 ///   required: false
@@ -244,6 +248,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: TRIGGER
+/// platform:
+///   description: Must be `alarm_control_panel`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -255,7 +263,7 @@ use serde_derive::Serialize;
 ///   type: boolean
 ///   default: false
 /// state_topic:
-///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+///   description: "The MQTT topic subscribed to receive state updates. A \"None\" payload resets to an `unknown` state. An empty payload is ignored. Valid state payloads are: `armed_away`, `armed_custom_bypass`, `armed_home`, `armed_night`, `armed_vacation`, `arming`, `disarmed`, `disarming` `pending` and `triggered`."
 ///   required: true
 ///   type: string
 /// supported_features:
@@ -264,7 +272,7 @@ use serde_derive::Serialize;
 ///   type: list
 ///   default: ["arm_home", "arm_away", "arm_night", "arm_vacation", "arm_custom_bypass", "trigger"]
 /// unique_id:
-///    description: An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception.
+///    description: An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///    required: false
 ///    type: string
 /// value_template:
@@ -410,6 +418,10 @@ pub struct AlarmControlPanel {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
@@ -458,6 +470,10 @@ pub struct AlarmControlPanel {
     #[serde(rename = "pl_trig", skip_serializing_if = "Option::is_none")]
     pub payload_trigger: Option<String>,
 
+    /// Must be `alarm_control_panel`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -466,7 +482,7 @@ pub struct AlarmControlPanel {
     #[serde(rename = "ret", skip_serializing_if = "Option::is_none")]
     pub retain: Option<bool>,
 
-    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. Valid state payloads are: `armed_away`, `armed_custom_bypass`, `armed_home`, `armed_night`, `armed_vacation`, `arming`, `disarmed`, `disarming` `pending` and `triggered`.
     #[serde(rename = "stat_t")]
     pub state_topic: String,
 
@@ -474,7 +490,7 @@ pub struct AlarmControlPanel {
     #[serde(rename = "sup_feat", skip_serializing_if = "Option::is_none")]
     pub supported_features: Option<Vec<String>>,
 
-    /// An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -563,6 +579,12 @@ impl AlarmControlPanel {
         self
     }
 
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
+        self
+    }
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     pub fn icon<T: Into<String>>(mut self, icon: T) -> Self {
         self.icon = Some(icon.into());
@@ -641,6 +663,12 @@ impl AlarmControlPanel {
         self
     }
 
+    /// Must be `alarm_control_panel`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     pub fn qos(mut self, qos: Qos) -> Self {
         self.qos = Some(qos);
@@ -653,7 +681,7 @@ impl AlarmControlPanel {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. Valid state payloads are: `armed_away`, `armed_custom_bypass`, `armed_home`, `armed_night`, `armed_vacation`, `arming`, `disarmed`, `disarming` `pending` and `triggered`.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = state_topic.into();
         self
@@ -665,7 +693,7 @@ impl AlarmControlPanel {
         self
     }
 
-    /// An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this alarm panel. If two alarm panels have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

@@ -169,6 +169,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// icon:
 ///   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
 ///   required: false
@@ -272,6 +276,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: [list]
 ///   default: []
+/// platform:
+///   description: Must be `humidifier`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -283,7 +291,7 @@ use serde_derive::Serialize;
 ///   type: boolean
 ///   default: true
 /// state_topic:
-///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+///   description: The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. Valid state payloads are `OFF` and `ON`. Custom `OFF` and `ON` values can be set with the `payload_off` and `payload_on` config options.
 ///   required: false
 ///   type: string
 /// state_value_template:
@@ -291,7 +299,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: template
 /// unique_id:
-///   description: An ID that uniquely identifies this humidifier. If two humidifiers have the same unique ID, Home Assistant will raise an exception.
+///   description: An ID that uniquely identifies this humidifier. If two humidifiers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///   required: false
 ///   type: string
 /// {% endconfiguration %}
@@ -408,6 +416,10 @@ pub struct Humidifier {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
@@ -492,6 +504,10 @@ pub struct Humidifier {
     #[serde(rename = "modes", skip_serializing_if = "Option::is_none")]
     pub modes: Option<Vec<String>>,
 
+    /// Must be `humidifier`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -500,7 +516,7 @@ pub struct Humidifier {
     #[serde(rename = "ret", skip_serializing_if = "Option::is_none")]
     pub retain: Option<bool>,
 
-    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. Valid state payloads are `OFF` and `ON`. Custom `OFF` and `ON` values can be set with the `payload_off` and `payload_on` config options.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -508,7 +524,7 @@ pub struct Humidifier {
     #[serde(rename = "stat_val_tpl", skip_serializing_if = "Option::is_none")]
     pub state_value_template: Option<String>,
 
-    /// An ID that uniquely identifies this humidifier. If two humidifiers have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this humidifier. If two humidifiers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 }
@@ -599,6 +615,12 @@ impl Humidifier {
     /// The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
     pub fn encoding<T: Into<String>>(mut self, encoding: T) -> Self {
         self.encoding = Some(encoding.into());
+        self
+    }
+
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
         self
     }
 
@@ -743,6 +765,12 @@ impl Humidifier {
         self
     }
 
+    /// Must be `humidifier`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     pub fn qos(mut self, qos: Qos) -> Self {
         self.qos = Some(qos);
@@ -755,7 +783,7 @@ impl Humidifier {
         self
     }
 
-    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive state updates. A "None" payload resets to an `unknown` state. An empty payload is ignored. Valid state payloads are `OFF` and `ON`. Custom `OFF` and `ON` values can be set with the `payload_off` and `payload_on` config options.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self
@@ -767,7 +795,7 @@ impl Humidifier {
         self
     }
 
-    /// An ID that uniquely identifies this humidifier. If two humidifiers have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this humidifier. If two humidifiers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

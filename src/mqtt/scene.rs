@@ -129,6 +129,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// encoding:
 ///   description: The encoding of the published messages.
 ///   required: false
@@ -170,6 +174,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: "ON"
+/// platform:
+///   description: Must be `scene`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -181,7 +189,7 @@ use serde_derive::Serialize;
 ///   type: boolean
 ///   default: false
 /// unique_id:
-///   description: An ID that uniquely identifies this scene entity. If two scenes have the same unique ID, Home Assistant will raise an exception.
+///   description: An ID that uniquely identifies this scene entity. If two scenes have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///   required: false
 ///   type: string
 /// {% endconfiguration %}
@@ -260,6 +268,10 @@ pub struct Scene {
     #[serde(rename = "en", skip_serializing_if = "Option::is_none")]
     pub enabled_by_default: Option<bool>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// The encoding of the published messages.
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
@@ -288,6 +300,10 @@ pub struct Scene {
     #[serde(rename = "pl_on", skip_serializing_if = "Option::is_none")]
     pub payload_on: Option<String>,
 
+    /// Must be `scene`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -296,7 +312,7 @@ pub struct Scene {
     #[serde(rename = "ret", skip_serializing_if = "Option::is_none")]
     pub retain: Option<bool>,
 
-    /// An ID that uniquely identifies this scene entity. If two scenes have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this scene entity. If two scenes have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 }
@@ -345,6 +361,12 @@ impl Scene {
         self
     }
 
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
+        self
+    }
+
     /// The encoding of the published messages.
     pub fn encoding<T: Into<String>>(mut self, encoding: T) -> Self {
         self.encoding = Some(encoding.into());
@@ -390,6 +412,12 @@ impl Scene {
         self
     }
 
+    /// Must be `scene`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     pub fn qos(mut self, qos: Qos) -> Self {
         self.qos = Some(qos);
@@ -402,7 +430,7 @@ impl Scene {
         self
     }
 
-    /// An ID that uniquely identifies this scene entity. If two scenes have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this scene entity. If two scenes have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

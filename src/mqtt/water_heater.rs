@@ -141,6 +141,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// initial:
 ///   description: Set the initial target temperature. The default value depends on the temperature unit, and will be 43.3°C or 110°F.
 ///   required: false
@@ -220,6 +224,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: "ON"
+/// platform:
+///   description: Must be `water_heater`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// power_command_template:
 ///   description: A template to render the value sent to the `power_command_topic` with. The `value` parameter is the payload set for `payload_on` or `payload_off`.
 ///   required: false
@@ -264,7 +272,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 /// unique_id:
-///    description: An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception.
+///    description: An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///    required: false
 ///    type: string
 /// value_template:
@@ -369,6 +377,10 @@ pub struct WaterHeater {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// Set the initial target temperature. The default value depends on the temperature unit, and will be 43.3°C or 110°F.
     #[serde(rename = "init", skip_serializing_if = "Option::is_none")]
     pub initial: Option<i32>,
@@ -433,6 +445,10 @@ pub struct WaterHeater {
     #[serde(rename = "pl_on", skip_serializing_if = "Option::is_none")]
     pub payload_on: Option<String>,
 
+    /// Must be `water_heater`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// A template to render the value sent to the `power_command_topic` with. The `value` parameter is the payload set for `payload_on` or `payload_off`.
     #[serde(
         rename = "power_command_template",
@@ -479,7 +495,7 @@ pub struct WaterHeater {
     #[serde(rename = "temp_unit", skip_serializing_if = "Option::is_none")]
     pub temperature_unit: Option<TemperatureUnit>,
 
-    /// An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -547,6 +563,12 @@ impl WaterHeater {
     /// The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
     pub fn encoding<T: Into<String>>(mut self, encoding: T) -> Self {
         self.encoding = Some(encoding.into());
+        self
+    }
+
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
         self
     }
 
@@ -649,6 +671,12 @@ impl WaterHeater {
         self
     }
 
+    /// Must be `water_heater`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// A template to render the value sent to the `power_command_topic` with. The `value` parameter is the payload set for `payload_on` or `payload_off`.
     pub fn power_command_template<T: Into<String>>(mut self, power_command_template: T) -> Self {
         self.power_command_template = Some(power_command_template.into());
@@ -718,7 +746,7 @@ impl WaterHeater {
         self
     }
 
-    /// An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this water heater device. If two water heater devices have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

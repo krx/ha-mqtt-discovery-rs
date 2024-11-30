@@ -160,6 +160,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// fan_mode_command_template:
 ///   description: A template to render the value sent to the `fan_mode_command_topic` with.
 ///   required: false
@@ -409,7 +413,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   default: 1
 /// unique_id:
-///    description: An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception.
+///    description: An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///    required: false
 ///    type: string
 /// value_template:
@@ -547,6 +551,10 @@ pub struct Climate {
     /// The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
+
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
 
     /// A template to render the value sent to the `fan_mode_command_topic` with.
     #[serde(rename = "fan_mode_cmd_tpl", skip_serializing_if = "Option::is_none")]
@@ -781,7 +789,7 @@ pub struct Climate {
     #[serde(rename = "temp_step", skip_serializing_if = "Option::is_none")]
     pub temp_step: Option<Decimal>,
 
-    /// An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -876,6 +884,12 @@ impl Climate {
     /// The encoding of the payloads received and published messages. Set to `""` to disable decoding of incoming payload.
     pub fn encoding<T: Into<String>>(mut self, encoding: T) -> Self {
         self.encoding = Some(encoding.into());
+        self
+    }
+
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
         self
     }
 
@@ -1284,7 +1298,7 @@ impl Climate {
         self
     }
 
-    /// An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

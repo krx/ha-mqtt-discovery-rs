@@ -138,6 +138,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity. When set, the entity category must be `diagnostic` for sensors.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// expire_after:
 ///   description: If set, it defines the number of seconds after the sensor's state expires, if it's not updated. After expiry, the sensor's state becomes `unavailable`. Default the sensors state never expires.
 ///   required: false
@@ -174,7 +178,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 /// options:
-///   description: List of allowed sensor state value. An empty list is not allowed. The sensor's `device_class` should be set to `enum`. Cannot be used together with `state_class` or `unit_of_measurement`.
+///   description: List of allowed sensor state value. An empty list is not allowed. The sensor's `device_class` must be set to `enum`. The `options` option cannot be used together with `state_class` or `unit_of_measurement`.
 ///   required: false
 ///   type: list
 /// payload_available:
@@ -187,6 +191,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: offline
+/// platform:
+///   description: Must be `sensor`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// suggested_display_precision:
 ///   description: The number of decimals which should be used in the sensor's state after rounding.
 ///   required: false
@@ -205,7 +213,7 @@ use serde_derive::Serialize;
 ///   required: true
 ///   type: string
 /// unique_id:
-///   description: "An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception."
+///   description: "An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery."
 ///   required: false
 ///   type: string
 /// unit_of_measurement:
@@ -523,6 +531,10 @@ pub struct Sensor {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// Sends update events even if the value hasn't changed. Useful if you want to have meaningful value graphs in history.
     #[serde(rename = "frc_upd", skip_serializing_if = "Option::is_none")]
     pub force_update: Option<bool>,
@@ -551,9 +563,13 @@ pub struct Sensor {
     #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
     pub object_id: Option<String>,
 
-    /// List of allowed sensor state value. An empty list is not allowed. The sensor's `device_class` should be set to `enum`. Cannot be used together with `state_class` or `unit_of_measurement`.
+    /// List of allowed sensor state value. An empty list is not allowed. The sensor's `device_class` must be set to `enum`. The `options` option cannot be used together with `state_class` or `unit_of_measurement`.
     #[serde(rename = "ops", skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<String>>,
+
+    /// Must be `sensor`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
 
     /// The number of decimals which should be used in the sensor's state after rounding.
     #[serde(rename = "sug_dsp_prc", skip_serializing_if = "Option::is_none")]
@@ -571,7 +587,7 @@ pub struct Sensor {
     #[serde(rename = "stat_t")]
     pub state_topic: String,
 
-    /// An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -634,6 +650,12 @@ impl Sensor {
         self
     }
 
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
+        self
+    }
+
     /// Sends update events even if the value hasn't changed. Useful if you want to have meaningful value graphs in history.
     pub fn force_update(mut self, force_update: bool) -> Self {
         self.force_update = Some(force_update);
@@ -682,9 +704,15 @@ impl Sensor {
         self
     }
 
-    /// List of allowed sensor state value. An empty list is not allowed. The sensor's `device_class` should be set to `enum`. Cannot be used together with `state_class` or `unit_of_measurement`.
+    /// List of allowed sensor state value. An empty list is not allowed. The sensor's `device_class` must be set to `enum`. The `options` option cannot be used together with `state_class` or `unit_of_measurement`.
     pub fn options<T: Into<String>>(mut self, options: Vec<T>) -> Self {
         self.options = Some(options.into_iter().map(|v| v.into()).collect());
+        self
+    }
+
+    /// Must be `sensor`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
         self
     }
 
@@ -712,7 +740,7 @@ impl Sensor {
         self
     }
 
-    /// An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

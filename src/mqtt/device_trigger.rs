@@ -31,6 +31,10 @@ use serde_derive::Serialize;
 ///   description: Optional payload to match the payload being sent over the topic.
 ///   required: false
 ///   type: string
+/// platform:
+///   description: Must be `device_automation`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -190,6 +194,10 @@ pub struct DeviceTrigger {
     #[serde(rename = "pl", skip_serializing_if = "Option::is_none")]
     pub payload: Option<String>,
 
+    /// Must be `device_automation`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -252,6 +260,12 @@ impl DeviceTrigger {
     /// Optional payload to match the payload being sent over the topic.
     pub fn payload<T: Into<String>>(mut self, payload: T) -> Self {
         self.payload = Some(payload.into());
+        self
+    }
+
+    /// Must be `device_automation`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
         self
     }
 

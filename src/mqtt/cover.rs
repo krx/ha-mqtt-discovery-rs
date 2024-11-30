@@ -153,6 +153,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// icon:
 ///   description: "[Icon](/docs/configuration/customizing-devices/#icon) for the entity."
 ///   required: false
@@ -204,6 +208,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: STOP
+/// platform:
+///   description: Must be `cover`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// position_closed:
 ///   description: Number which represents closed position.
 ///   required: false
@@ -266,7 +274,7 @@ use serde_derive::Serialize;
 ///   type: string
 ///   default: stopped
 /// state_topic:
-///   description: The MQTT topic subscribed to receive cover state messages. State topic can only read (`open`, `opening`, `closed`, `closing` or `stopped`) state.  A "None" payload resets to an `unknown` state. An empty payload is ignored.
+///   description: The MQTT topic subscribed to receive cover state messages. State topic can only read a (`open`, `opening`, `closed`, `closing` or `stopped`) state.  A "None" payload resets to an `unknown` state. An empty payload is ignored.
 ///   required: false
 ///   type: string
 /// tilt_closed_value:
@@ -311,7 +319,7 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 /// unique_id:
-///   description: An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception.
+///   description: An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///   required: false
 ///   type: string
 /// value_template:
@@ -542,6 +550,8 @@ use serde_derive::Serialize;
 ///
 /// ### Full configuration using advanced templating
 ///
+/// The `position_template` can accept JSON, where `position` and `tilt_position` is provided at the same time.
+///
 /// The example below shows a full example of how to set up a venetian blind which has a combined position and tilt topic. The blind in the example has moveable slats which tilt with a position change. In the example, it takes the blind 6% of the movement for a full rotation of the slats.
 ///
 /// Following variable might be used in `position_template`, `set_position_template`, `tilt_command_template` and `tilt_status_template`, `json_attributes_template` (only `entity_id`).
@@ -582,24 +592,20 @@ use serde_derive::Serialize;
 ///       position_template: |-
 ///         {% if not state_attr(entity_id, "current_position") %}
 ///           {
-///             "position" : value,
-///             "tilt_value" : 0
+///             "position" : {{ value }},
+///             "tilt_position" : 0
 ///           }
 ///         {% else %}
-///           {% set position = state_attr(entity_id, "current_position") %}
-///           {% set tilt_percent = (state_attr(entity_id, "current_tilt_position")) %}
+///           {% set old_position = state_attr(entity_id, "current_position") %}
+///           {% set old_tilt_percent = (state_attr(entity_id, "current_tilt_position")) %}
 ///
-///           {% set movement = value | int - position %}
-///           {% set tilt = (tilt_percent / 100 * (tilt_max - tilt_min)) %}
-///           {% set tilt_value = min(max((tilt + movement), tilt_min), max) %}
+///           {% set movement = value | int - old_position %}
+///           {% set old_tilt_position = (old_tilt_percent / 100 * (tilt_max - tilt_min)) %}
+///           {% set new_tilt_position = min(max((old_tilt_position + movement), tilt_min), tilt_max) %}
 ///   
 ///           {
-///             "position": value,
-///             "pos": position,
-///             "tilt": tilt,
-///             "tilt_value": tilt_value,
-///             "tilt_percent" : tilt_percent,
-///             "mov" : movement
+///             "position": {{ value }},
+///             "tilt_position": {{ new_tilt_position }}
 ///           }
 ///         {% endif %}
 ///     tilt_command_template: >-
@@ -661,6 +667,10 @@ pub struct Cover {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     #[serde(rename = "ic", skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
@@ -696,6 +706,10 @@ pub struct Cover {
     /// The command payload that stops the cover.
     #[serde(rename = "pl_stop", skip_serializing_if = "Option::is_none")]
     pub payload_stop: Option<String>,
+
+    /// Must be `cover`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
 
     /// Number which represents closed position.
     #[serde(rename = "pos_clsd", skip_serializing_if = "Option::is_none")]
@@ -749,7 +763,7 @@ pub struct Cover {
     #[serde(rename = "stat_stopped", skip_serializing_if = "Option::is_none")]
     pub state_stopped: Option<String>,
 
-    /// The MQTT topic subscribed to receive cover state messages. State topic can only read (`open`, `opening`, `closed`, `closing` or `stopped`) state.  A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive cover state messages. State topic can only read a (`open`, `opening`, `closed`, `closing` or `stopped`) state.  A "None" payload resets to an `unknown` state. An empty payload is ignored.
     #[serde(rename = "stat_t", skip_serializing_if = "Option::is_none")]
     pub state_topic: Option<String>,
 
@@ -789,7 +803,7 @@ pub struct Cover {
     #[serde(rename = "tilt_status_t", skip_serializing_if = "Option::is_none")]
     pub tilt_status_topic: Option<String>,
 
-    /// An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -854,6 +868,12 @@ impl Cover {
         self
     }
 
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
+        self
+    }
+
     /// [Icon](/docs/configuration/customizing-devices/#icon) for the entity.
     pub fn icon<T: Into<String>>(mut self, icon: T) -> Self {
         self.icon = Some(icon.into());
@@ -908,6 +928,12 @@ impl Cover {
     /// The command payload that stops the cover.
     pub fn payload_stop<T: Into<String>>(mut self, payload_stop: T) -> Self {
         self.payload_stop = Some(payload_stop.into());
+        self
+    }
+
+    /// Must be `cover`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
         self
     }
 
@@ -989,7 +1015,7 @@ impl Cover {
         self
     }
 
-    /// The MQTT topic subscribed to receive cover state messages. State topic can only read (`open`, `opening`, `closed`, `closing` or `stopped`) state.  A "None" payload resets to an `unknown` state. An empty payload is ignored.
+    /// The MQTT topic subscribed to receive cover state messages. State topic can only read a (`open`, `opening`, `closed`, `closing` or `stopped`) state.  A "None" payload resets to an `unknown` state. An empty payload is ignored.
     pub fn state_topic<T: Into<String>>(mut self, state_topic: T) -> Self {
         self.state_topic = Some(state_topic.into());
         self
@@ -1049,7 +1075,7 @@ impl Cover {
         self
     }
 
-    /// An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self

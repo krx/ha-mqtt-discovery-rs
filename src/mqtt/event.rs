@@ -135,6 +135,10 @@ use serde_derive::Serialize;
 ///   description: The [category](https://developers.home-assistant.io/docs/core/entity#generic-properties) of the entity.
 ///   required: false
 ///   type: string
+/// entity_picture:
+///   description: "Picture URL for the entity."
+///   required: false
+///   type: string
 /// event_types:
 ///   description: A list of valid `event_type` strings.
 ///   required: true
@@ -170,6 +174,10 @@ use serde_derive::Serialize;
 ///   required: false
 ///   type: string
 ///   default: offline
+/// platform:
+///   description: Must be `event`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+///   required: true
+///   type: string
 /// qos:
 ///   description: The maximum QoS level to be used when receiving and publishing messages.
 ///   required: false
@@ -180,7 +188,7 @@ use serde_derive::Serialize;
 ///   required: true
 ///   type: string
 /// unique_id:
-///   description: An ID that uniquely identifies this event entity. If two events have the same unique ID, Home Assistant will raise an exception.
+///   description: An ID that uniquely identifies this event entity. If two events have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
 ///   required: false
 ///   type: string
 /// value_template:
@@ -295,6 +303,10 @@ pub struct Event {
     #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub encoding: Option<String>,
 
+    /// Picture URL for the entity.
+    #[serde(rename = "ent_pic", skip_serializing_if = "Option::is_none")]
+    pub entity_picture: Option<String>,
+
     /// A list of valid `event_type` strings.
     #[serde(rename = "evt_typ")]
     pub event_types: Vec<String>,
@@ -319,6 +331,10 @@ pub struct Event {
     #[serde(rename = "obj_id", skip_serializing_if = "Option::is_none")]
     pub object_id: Option<String>,
 
+    /// Must be `event`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    #[serde(rename = "platform")]
+    pub platform: String,
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     #[serde(rename = "qos", skip_serializing_if = "Option::is_none")]
     pub qos: Option<Qos>,
@@ -327,7 +343,7 @@ pub struct Event {
     #[serde(rename = "stat_t")]
     pub state_topic: String,
 
-    /// An ID that uniquely identifies this event entity. If two events have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this event entity. If two events have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     #[serde(rename = "uniq_id", skip_serializing_if = "Option::is_none")]
     pub unique_id: Option<String>,
 
@@ -386,6 +402,12 @@ impl Event {
         self
     }
 
+    /// Picture URL for the entity.
+    pub fn entity_picture<T: Into<String>>(mut self, entity_picture: T) -> Self {
+        self.entity_picture = Some(entity_picture.into());
+        self
+    }
+
     /// A list of valid `event_type` strings.
     pub fn event_types<T: Into<String>>(mut self, event_types: Vec<T>) -> Self {
         self.event_types = event_types.into_iter().map(|v| v.into()).collect();
@@ -425,6 +447,12 @@ impl Event {
         self
     }
 
+    /// Must be `event`. Only allowed and required in [MQTT auto discovery device messages](/integrations/mqtt/#device-discovery-payload).
+    pub fn platform<T: Into<String>>(mut self, platform: T) -> Self {
+        self.platform = platform.into();
+        self
+    }
+
     /// The maximum QoS level to be used when receiving and publishing messages.
     pub fn qos(mut self, qos: Qos) -> Self {
         self.qos = Some(qos);
@@ -437,7 +465,7 @@ impl Event {
         self
     }
 
-    /// An ID that uniquely identifies this event entity. If two events have the same unique ID, Home Assistant will raise an exception.
+    /// An ID that uniquely identifies this event entity. If two events have the same unique ID, Home Assistant will raise an exception. Required when used with device-based discovery.
     pub fn unique_id<T: Into<String>>(mut self, unique_id: T) -> Self {
         self.unique_id = Some(unique_id.into());
         self
