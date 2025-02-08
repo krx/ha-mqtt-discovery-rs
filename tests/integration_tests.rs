@@ -131,6 +131,7 @@ async fn can_publish_a_binary_sensor_configuration() {
         json,
         json!(
             {
+                "platform": "binary_sensor",
                 "~": "temperature_devices/barometer-09AF",
                 "o": {
                   "name": "Integration test",
@@ -223,6 +224,7 @@ async fn can_publish_a_number_configuration() {
         json,
         json!(
             {
+                "platform": "number",
                 "~": "temperature_devices/barometer-09AF",
                 "o": {
                   "name": "Integration test",
@@ -315,6 +317,7 @@ async fn can_publish_a_sensor_configuration() {
         json,
         json!(
             {
+                "platform": "sensor",
                 "~": "temperature_devices/barometer-09AF",
                 "o": {
                   "name": "Integration test",
