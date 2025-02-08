@@ -33,6 +33,7 @@ type FieldAttributes = {
   useInto?: boolean;
   iterable?: boolean;
   rustSafeName?: string;
+  defaultValue? : string;
 
   keys?: any;
 };
@@ -45,10 +46,10 @@ type MqttEntity = {
 };
 
 export function generateMqttEntityModel(
-  name: string,
+  entityName: string,
   docFile: string
 ): MqttEntity {
-  console.log(name, docFile);
+  console.log(entityName, docFile);
   const docContent = readFileSync(docFile).toString();
 
   const modelDescriptorYaml =
@@ -58,12 +59,16 @@ export function generateMqttEntityModel(
     const entries = Object.entries(modelDescriptor)
       .filter(([name, attrs]) => !IGNORED_ATTRS.includes(name));
     for (const [name, attrs] of entries) {
-      appendRustType(name, attrs as FieldAttributes);
+      const attrsFieldAttributes = attrs as FieldAttributes
+      appendRustType(name, attrsFieldAttributes);
+      if (name === "platform") {
+        attrsFieldAttributes.defaultValue = entityName;
+      }
     }
 
     return {
-      entityName: name,
-      entityDoc: docContent,
+      entityName,
+      entityDoc: "", //docContent,
       imports: new Set(entries.map(([name, attrs]) => attrs.import).filter(importInstruction => !!importInstruction)),
       properties: Object.fromEntries(entries),
     };
